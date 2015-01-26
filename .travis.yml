@@ -9,7 +9,7 @@ before_install:
 
 install:
     - sudo apt-get install -qq -y --force-yes csbuild
-    - sudo apt-get install libcap-dev libncurses5-dev texi2html texinfo
+    - sudo apt-get install -qq libcap-dev libncurses5-dev texi2html texinfo
 
 script:
-    - csbuild --git-commit-range "$TRAVIS_COMMIT_RANGE" --build-cmd "git clean -xfd && autoreconf -v && ./configure && make" --git-bisect --added-exit-code 7
+    - csbuild --git-commit-range "$TRAVIS_COMMIT_RANGE" --build-cmd "git clean -dfqx && autoreconf && ./configure --quiet && make -s" --git-bisect --added-exit-code 7
