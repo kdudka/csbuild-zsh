@@ -3732,7 +3732,7 @@ bin_print(char *name, char **args, Options ops, int func)
     int flen, width, prec, type, argc, n, narg, curlen = 0;
     int nnl = 0, fmttrunc = 0, ret = 0, maxarg = 0, nc = 0;
     int flags[5], *len;
-    char *start, *endptr, *c, *d, *flag, *buf, spec[13], *fmt = NULL;
+    char *start, *endptr, *c, *d, *flag, *buf = NULL, spec[13], *fmt = NULL;
     char **first, **argp, *curarg, *flagch = "0+- #", save = '\0', nullstr = '\0';
     size_t rcount, count = 0;
 #ifdef HAVE_OPEN_MEMSTREAM
@@ -4214,6 +4214,10 @@ bin_print(char *name, char **args, Options ops, int func)
 				 narg);
 			if (fout != stdout)
 			    fclose(fout);
+#ifdef HAVE_OPEN_MEMSTREAM
+			if (buf)
+			    free(buf);
+#endif
 			return 1;
 		    } else {
 		    	if (narg > maxarg) maxarg = narg;
@@ -4247,6 +4251,10 @@ bin_print(char *name, char **args, Options ops, int func)
 				     narg);
 			    if (fout != stdout)
 				fclose(fout);
+#ifdef HAVE_OPEN_MEMSTREAM
+			    if (buf)
+				free(buf);
+#endif
 			    return 1;
 			} else {
 		    	    if (narg > maxarg) maxarg = narg;
@@ -4276,6 +4284,10 @@ bin_print(char *name, char **args, Options ops, int func)
 					 narg);
 				if (fout != stdout)
 				    fclose(fout);
+#ifdef HAVE_OPEN_MEMSTREAM
+				if (buf)
+				    free(buf);
+#endif
 				return 1;
 			    } else {
 		    		if (narg > maxarg) maxarg = narg;
@@ -4431,6 +4443,10 @@ bin_print(char *name, char **args, Options ops, int func)
 		    (fflush(fout) != 0 && errno != EBADF)) {
 		    zwarnnam(name, "write error: %e", errno);
 		}
+#ifdef HAVE_OPEN_MEMSTREAM
+		if (buf)
+		    free(buf);
+#endif
 		return 1;
 	    }
 
@@ -4527,7 +4543,8 @@ bin_print(char *name, char **args, Options ops, int func)
     if (OPT_ISSET(ops,'z') || OPT_ISSET(ops,'s')) {
 #ifdef HAVE_OPEN_MEMSTREAM
 	putc(0, fout);
-	fflush(fout);
+	fclose(fout);
+	fout = NULL;
 #else
 	rewind(fout);
 	buf = (char *)zalloc(count + 1);
@@ -4548,11 +4565,16 @@ bin_print(char *name, char **args, Options ops, int func)
 	unqueue_signals();
     }
 
-    /* Testing EBADF special-cases >&- redirections */
-    if ((fout != stdout) ? (fclose(fout) != 0) :
-	(fflush(fout) != 0 && errno != EBADF)) {
-	zwarnnam(name, "write error: %e", errno);
-	ret = 1;
+#ifdef HAVE_OPEN_MEMSTREAM
+    if (fout)
+#endif
+    {
+	/* Testing EBADF special-cases >&- redirections */
+	if ((fout != stdout) ? (fclose(fout) != 0) :
+	    (fflush(fout) != 0 && errno != EBADF)) {
+	    zwarnnam(name, "write error: %e", errno);
+	    ret = 1;
+	}
     }
     return ret;
 }
