@@ -809,7 +809,7 @@ pindex(NOHISTBEEP)
 cindex(history beeping)
 cindex(beep, history)
 item(tt(HIST_BEEP) <D>)(
-Beep when an attempt is made to access a history entry which
+Beep in ZLE when a widget attempts to access a history entry which
 isn't there.
 )
 pindex(HIST_EXPIRE_DUPS_FIRST)
@@ -1846,8 +1846,8 @@ cindex(history style, csh)
 item(tt(CSH_JUNKIE_HISTORY) <C>)(
 A history reference without an event specifier will always refer to the
 previous command.  Without this option, such a history reference refers
-to the same event as the previous history reference, defaulting to the
-previous command.
+to the same event as the previous history reference on the current 
+command line, defaulting to the previous command.
 )
 pindex(CSH_JUNKIE_LOOPS)
 pindex(NO_CSH_JUNKIE_LOOPS)
@@ -2097,7 +2097,7 @@ pindex(NOPOSIXTRAPS)
 cindex(traps, on function exit)
 cindex(traps, POSIX compatibility)
 item(tt(POSIX_TRAPS) <K> <S>)(
-When the is option is set, the usual zsh behaviour of executing
+When this option is set, the usual zsh behaviour of executing
 traps for tt(EXIT) on exit from shell functions is suppressed.
 In that case, manipulating tt(EXIT) traps always alters the global
 trap for exiting the shell; the tt(LOCAL_TRAPS) option is
