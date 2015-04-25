@@ -1,3 +1,33 @@
+2015-04-25  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 34961: Completion/Unix/Command/_mkdir: avoid _message because
+	it aborts completer list too early
+
+	* 34961: Completion/Base/Completer/_history: unquote history words
+	when command line has a quote
+
+	* 34961: Completion/compaudit: properly handle the case of finding
+	no files when searching $fpath and $_compdir
+
+	* 34961: Doc/Zsh/compsys.yo: minor wording clarification
+
+	* 34961: Src/Modules/datetime.c: $TZ is implicitly local in
+	builtin strftime (originally workers/34602 from workers/34596)
+
+	* 34961: Src/hist.c: clean up decl's of quote() and quotebreak()
+
+	* 34961: Doc/Zsh/mod_system.yo: sysparams[pid] and sysparams[ppid]
+	added to variables index
+
+	* 34961: Src/compat.c, Src/init.c: replace a couple of free() with
+	zfree() for consistency.
+
+	* 34961: Completion/Base/Completer/_expand: add backslash to alias
+	expansion matching (related to workers/32186)
+
+	* 34961: Test/D02glob.ztst: test for breadth-first glob with (Y1)
+	qualifier (originally workers/32726)
+
 2015-04-24  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 34955: Src/exec.c: list_pipe_job needs saving and restoring
