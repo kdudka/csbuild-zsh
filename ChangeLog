@@ -1,3 +1,16 @@
+2015-04-28  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Jared Ahern: 34980: Completion/Unix/Command/_make: expanding
+	make variables was somewhat broken.
+
+	* Jared Ahern: 34980: Completion/Unix/Command/_make: match
+	additional forms of assignment in makefiles.
+
+	* 34979: Src/exec.c: preserve job text in shell job fix code.
+
+	* 34977: Src/zsh.mdd: more reliable test for whether
+	preprocessor is GNU.
+
 2015-04-25  Barton E. Schaefer  <schaefer@zsh.org>
 
 	* 34966: Src/hashtable.c: "whence -v" for a function reports
