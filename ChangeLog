@@ -1,3 +1,12 @@
+2015-06-02  Oliver Kiddle  <opk@zsh.org>
+
+	* 35356: Completion/Unix/Type/_ttys, Completion/Unix/Command/_ps,
+	Completion/Unix/Command/_last, Completion/Unix/Command/_pgrep,
+	Completion/Unix/Command/_gdb: factor out completion of tty devices
+
+	* Adrien Vergé: 35352 (tweaked): Completion/Redhat/Command/_dnf:
+	completion for new Redhat package manager
+
 2015-06-01  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* unposted: Config/version.mk: update to 5.0.8-dev-0 so
