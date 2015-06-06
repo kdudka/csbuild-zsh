@@ -1,3 +1,13 @@
+2015-06-06  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 35350: Completion/Zsh/Command/_fc, Doc/Zsh/builtins.yo,
+	Src/builtin.c: extend "fc -I" to cover listing of "internal"
+	history events only
+
+	* 35163: Completion/Base/Core/_main_complete,
+	Completion/Base/Core/_setup: move "show-ambiguity" style to _setup
+	so that more precise context can be applied
+
 2015-06-05  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 35386: Doc/Zsh/builtins.yo, Doc/Zsh/contrib.yo,
