@@ -1,3 +1,26 @@
+2015-06-18  Oliver Kiddle  <opk@zsh.org>
+
+	* 35474, 35492: Doc/Zsh/params.yo, Doc/Zsh/zle.yo,
+	Src/Zle/complist.c, Src/Zle/iwidgets.list, Src/Zle/zle_hist.c,
+	Src/Zle/zle_keymap.c, Src/Zle/zle_main.c: support the
+	bracketed paste mode of newer terminal emulators
+
+	* 35487, 35496: Doc/Zsh/zle.yo, Src/Zle/complist.c,
+	Src/Zle/zle_hist.c: don't reinstate previous incremental search
+	string when search direction changes
+
+	* 35510: Completion/Unix/Command/_git: use consistent
+	formatting for git subcommands
+
+	* 35504: Completion/Unix/Command/_git: complete % placeholders
+	for git log --format
+
+	* 35521: Completion/Zsh/Type/_file_descriptors: sort matches
+	numerically and use pfiles on Solaris
+
+	* Eric Cook: 35490: Completion/Zsh/Type/_file_descriptors:
+	silence errors and avoid blank match due to missing local
+
 2015-06-17  Mikael Magnusson  <mikachu@gmail.com>
 
 	* 35477: Completion/Unix/Command/_gdb: _gdb: Allow 'core' to
@@ -34,7 +57,7 @@
 	* 35442: Doc/Zsh/options.yo: multibyte option now on
 	everywhere by default.
 
-2015-06-08  Oliver Kiddle  <opk@zsh.org>
+2015-06-09  Oliver Kiddle  <opk@zsh.org>
 
 	* 35418: Doc/Zsh/compsys.yo: fix usage synopsis for _describe
 	to be clear that a single description is used
