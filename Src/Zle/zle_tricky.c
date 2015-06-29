@@ -345,17 +345,8 @@ mod_export int
 reversemenucomplete(char **args)
 {
     wouldinstab = 0;
-    if (!menucmp) {
-	menucomplete(args);
-	/*
-	 * Drop through, since we are now on the first item instead of
-	 * the last.  We've already updated the display, so this is a
-	 * bit inefficient, but it's simple and it works.
-	 */
-    }
-
-    runhookdef(REVERSEMENUHOOK, NULL);
-    return 0;
+    zmult = -zmult;
+    return menucomplete(args);
 }
 
 /**/
