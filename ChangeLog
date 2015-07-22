@@ -1,3 +1,37 @@
+2015-07-22  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 35939: Joshua Krusell <js.shirin@gmail.com>:
+	Src/Modules/socket.c, Src/Modules/tcp.c: fix select polling in
+	ztcp and zsocket
+
+	* unposted: Completion/Zsh/Type/_directory_stack: move some more
+	recent code so an old comment is connected to the correct bit of
+	older code
+
+	* users/20324: Completion/Zsh/Type/_directory_stack: add (D) flag
+	for tilde-fied completion listing
+
+	* 35826: Src/Modules/newuser.c, Src/Modules/zftp.c,
+	Src/Zle/complist.c, Src/Zle/zle_misc.c, Src/init.c, Src/params.c,
+	Src/utils.c, Src/watch.c: add getsparam_u() to return unmetafied
+	string, use it for a number of references to non-special params
+
+	* 35823: Functions/Zle/narrow-to-region: fix handling of MARK
+	and CURSOR, clean up documentary comment
+
+2015-07-22  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted: Test/B02typeset.ztst: fix another test for 35581
+	
+	* 35582: Test/A06assign.ztst, Test/B02typeset.ztst: test for 35581
+
+	* 35581: Src/params.c: output array assignments with spaces inside
+	the parens
+
+2015-07-16  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 35805: Test/E01options.ztst: tests for 35799
+
 2015-07-15  Barton E. Schaefer  <schaefer@zsh.org>
 
 	* 35799: Src/params.c: with NO_EXEC, parse parameter subscript
