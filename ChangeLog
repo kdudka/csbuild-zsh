@@ -1,3 +1,19 @@
+2015-07-23  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* 35873: Test/D03procsubst.ztst: add original test from 35847:
+
+	* 35872: Src/utils.c: protect against NULL pointers in unmeta().
+
+	* 35849: Src/exec.c, Src/jobs.c, Test/D03procsubst.ztst: close
+	file descriptors from process substitution in parent after
+	fork.
+
+	* 35854: Stc/hist.c: ensure character unget doesn't cause
+	infinite recursion.
+
+	* 35793: Src/zsh.h: avoid undefined behaviour shifting signed
+	number.
+
 2015-07-23  Oliver Kiddle <opk@zsh.org>
 
 	* 35753: Completion/Zsh/Type/_ps1234: allow for numbers after
