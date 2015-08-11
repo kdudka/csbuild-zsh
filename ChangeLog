@@ -1,3 +1,13 @@
+2015-08-11  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 36104: Src/exec.c, Src/jobs.c: change order of child_block()
+	and dont_queue_signals() to resolve yet another race condition
+
+	* 36092: Doc/Zsh/mod_zpty.yo, Src/Modules/zpty.c: return the pty
+	master file descriptor in $REPLY for use with "zle -F" etc.
+
+	* 36090: Src/init.c: keep signals queued for preprompt()
+
 2015-08-11  Oliver Kiddle <opk@zsh.org>
 
 	* 36096: Src/Zle/zle_move.c: special . mark in vi mode
