@@ -1087,33 +1087,36 @@ _git-log () {
     $revision_options \
     '-L+[trace the evolution of a line range or regex within a file]:range' \
     '(-)--[start file arguments]' \
-    '*:: :->commit-range-or-file' && ret=0
+    '1: :->first-commit-ranges-or-files' \
+    '*: :->commit-ranges-or-files' && ret=0
 
   case $state in
-    (commit-range-or-file)
-      case $CURRENT in
-        (1)
-          if [[ -n ${opt_args[(I)--]} ]]; then
-            __git_cached_files && ret=0
-          else
-            _alternative \
-              'commit-ranges::__git_commit_ranges' \
-              'cached-files::__git_cached_files' && ret=0
-          fi
-          ;;
-        (*)
-          # TODO: Write a wrapper function that checks whether we have a
-          # committish range or comittish and calls __git_tree_files
-          # appropriately.
-          if __git_is_committish_range $line[1]; then
-            __git_tree_files ${PREFIX:-.} $(__git_committish_range_last $line[1]) && ret=0
-          elif __git_is_committish $line[1]; then
-            __git_tree_files ${PREFIX:-.} $line[1] && ret=0
-          else
-            __git_cached_files && ret=0
-          fi
-          ;;
-      esac
+    (first-commit-ranges-or-files)
+      if [[ -n ${opt_args[(I)--]} ]]; then
+	__git_tree_files ${PREFIX:-.} HEAD && ret=0
+      else
+	_alternative \
+	  'commit-ranges::__git_commit_ranges' \
+	  'cached-files::__git_tree_files ${PREFIX:-.} HEAD' && ret=0
+      fi
+    ;;
+    (commit-ranges-or-files)
+      # Multiple revspecs are permitted.
+      if [[ -z ${opt_args[(I)--]} ]]; then
+        __git_commit_ranges "$@" && ret=0
+      fi
+
+      # TODO: Write a wrapper function that checks whether we have a
+      # committish range or comittish and calls __git_tree_files
+      # appropriately.
+      if __git_is_committish_range $line[1]; then
+	__git_tree_files ${PREFIX:-.} $(__git_committish_range_last $line[1]) && ret=0
+      elif __git_is_committish $line[1]; then
+	__git_tree_files ${PREFIX:-.} $line[1] && ret=0
+      else
+	__git_tree_files ${PREFIX:-.} HEAD && ret=0
+      fi
+    ;;
   esac
 
   return ret
@@ -5737,7 +5740,11 @@ __git_tree_ishs () {
 __git_objects () {
   compset -P '*:'
   if [[ -n $IPREFIX ]]; then
-    __git_tree_files "$PREFIX" "${IPREFIX%:}"
+    if compset -P ./ ; then
+      __git_tree_files                 "$PREFIX" "${IPREFIX%:./}"
+    else
+      __git_tree_files --root-relative "$PREFIX" "${IPREFIX%:}"
+    fi
   else
     _alternative \
       'revisions::__git_revisions' \
@@ -5982,12 +5989,23 @@ __git_changed_files () {
     'changed-in-working-tree-files::__git_changed-in-working-tree_files'
 }
 
+#     __git_tree_files [--root-relative] FSPATH TREEISH [TREEISH...] [COMPADD OPTIONS]
+#
+# Complete [presently: a single level of] repository files under FSPATH.
+# FSPATH is interpreted as a directory path within each TREEISH.
+# FSPATH is relative to cwd, unless --root-relative is specified, in
+# which case it is relative to the repository root.
 (( $+functions[__git_tree_files] )) ||
 __git_tree_files () {
   local multi_parts_opts
   local tree Path
   integer at_least_one_tree_added
   local -a tree_files compadd_opts
+  local -a extra_args
+
+  if [[ $1 == --root-relative ]]; then
+    extra_args+=(--full-tree)
+  fi
 
   zparseopts -D -E -a compadd_opts V: J: 1 2 n f X: M: P: S: r: R: q F:
 
@@ -5995,7 +6013,7 @@ __git_tree_files () {
   shift
   (( at_least_one_tree_added = 0 ))
   for tree in $*; do
-    tree_files+=(${(ps:\0:)"$(_call_program tree-files git ls-tree --name-only -z $tree $Path 2>/dev/null)"})
+    tree_files+=(${(ps:\0:)"$(_call_program tree-files git ls-tree $extra_args --name-only -z $tree $Path 2>/dev/null)"})
     __git_command_successful $pipestatus && (( at_least_one_tree_added = 1 ))
   done
 
