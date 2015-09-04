@@ -1,3 +1,8 @@
+2015-09-04  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* 36421: Src/pattern.c: can't-get-the-staff fix for idiocy in
+	36415.
+
 2015-09-04  Jun-ichi Takimoto <takimoto-j@kba.biglobe.ne.jp>
 
 	* 36417: Doc/Zsh/manual.yo: fix/update top level texinfo menu
@@ -15,7 +20,7 @@
 	* 36416: Src/Zle/zle_refresh.c, Src/Zle/zle_utils.c: If
 	keyboard interrupt during getzlequery(), don't propagate further,
 	just redraw the line.  Also handle logical error that we
-	attempted to redware the line partially if an error or interrupt
+	attempted to redraw the line partially if an error or interrupt
 	was propagated.
 
 2015-09-03  Daniel Shahaf  <d.s@daniel.shahaf.name>
