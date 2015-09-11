@@ -1,3 +1,13 @@
+2015-09-11  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Config/version.mk: 5.1.1
+
+	*  Sebastian Gniazdowski: 36489: Src/Modules/curses.c: fix bug
+	with hash table for colours.
+
+	* 36483: Functions/Zle/bracketed-paste-magic: use
+	[[:INCOMPLETE:]] to get rest of multibyte character.
+
 2015-09-11  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* unposted: NEWS, README: update for minor new features that
