@@ -1,3 +1,10 @@
+2015-10-01  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Andrew Janke: 36729: MACHINES, NEWS, README: fix some typos.
+
+	* 36722: Completion/Unix/Command/_git: allow range to complete
+	after ^, taking acoount of backslash quoting.
+
 2015-10-01  Mikael Magnusson  <mikachu@gmail.com>
 
 	* 36709: Doc/Zsh/zle.yo, Functions/Zle/bracketed-paste-url-magic,
@@ -36,6 +43,9 @@
 	of _arguments correctly
 
 2015-09-30  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Matthew Martin: 36693: Doc/Zsh/arith.yo: arithmetic rounds
+	towards zero.
 
 	* 36711: Src/glob.c, Src/pattern.c: Memory for early unmetafied
 	pattern trial string is on the heap.
