@@ -1892,6 +1892,37 @@ redup(int x, int y)
 }
 
 /*
+ * Add an fd opened ithin a module.
+ *
+ * fdt is the type of the fd; see the FDT_ definitions in zsh.h.
+ * The most likely falures are:
+ *
+ * FDT_EXTERNAL: the fd can be used within the shell for normal I/O but
+ * it will not be closed automatically or by normal shell syntax.
+ *
+ * FDT_MODULE: as FDT_EXTERNAL, but it can only be closed by the module
+ * (which should included zclose() as part of the sequence), not by
+ * the standard shell syntax for closing file descriptors.
+ *
+ * FDT_INTERNAL: fd is treated like others created by the shell for
+ * internal use; it can be closed and will be closed by the shell if it
+ * exec's or performs an exec with a fork optimised out.
+ *
+ * Safe if fd is -1 to indicate failure.
+ */
+/**/
+mod_export void
+addmodulefd(int fd, int fdt)
+{
+    if (fd >= 0) {
+	check_fd_table(fd);
+	fdtable[fd] = fdt;
+    }
+}
+
+/**/
+
+/*
  * Indicate that an fd has a file lock; if cloexec is 1 it will be closed
  * on exec.
  * The fd should already be known to fdtable (e.g. by movefd).
