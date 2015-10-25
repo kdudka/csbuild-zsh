@@ -5313,7 +5313,8 @@ __git_remotes () {
 __git_ref_specs () {
   # TODO: This needs to deal with a lot more types of things.
   if compset -P '*:'; then
-    __git_heads
+    # TODO: have the caller supply the correct remote name, restrict to refs/remotes/${that_remote}/* only
+    __git_remote_branch_names_noprefix
   else
     compset -P '+'
     if compset -S ':*'; then
@@ -5540,7 +5541,7 @@ __git_branch_names () {
   branch_names=(${${(f)"$(_call_program branchrefs git for-each-ref --format='"%(refname)"' refs/heads 2>/dev/null)"}#refs/heads/})
   __git_command_successful $pipestatus || return 1
 
-  _wanted branch-names expl branch-name compadd "$@" -a - branch_names
+  _wanted branch-names expl branch-name compadd -M 'r:|/=**' "$@" -a - branch_names
 }
 
 (( $+functions[__git_remote_branch_names] )) ||
@@ -5559,7 +5560,7 @@ __git_remote_branch_names_noprefix () {
   local expl
   declare -a heads
 
-  branch_names=(${${${(f)"$(_call_program remote-branch-refs-noprefix git for-each-ref --format='"%(refname)"' refs/remotes 2>/dev/null)"}##*/}:#HEAD})
+  branch_names=(${${${${(f)"$(_call_program remote-branch-refs-noprefix git for-each-ref --format='"%(refname)"' refs/remotes 2>/dev/null)"}#refs/remotes/}#*/}:#HEAD})
   __git_command_successful $pipestatus || return 1
 
   _wanted remote-branch-names-noprefix expl 'remote branch name' compadd -M 'r:|/=**' "$@" -a - branch_names
@@ -5640,7 +5641,7 @@ __git_commit_objects () {
   commits=(${(f)"$(_call_program commits git --no-pager log -1000 --all --reflog --format='%h:\[%h\]\ %s\ \(%cr\)')"})
   __git_command_successful $pipestatus || return 1
 
-  _describe -V -t commits 'commit object name' commits
+  _describe -Vx -t commits 'commit object name' commits
 }
 
 (( $+functions[__git_recent_commits] )) ||
@@ -5650,6 +5651,8 @@ __git_recent_commits () {
   local i j k ret
   integer distance_from_head
   local label
+  local parents
+  local next_first_parent_ancestral_line_commit
 
   zparseopts -D -E O:=argument_array_names
   # Turn (-O foo:bar) to (foo bar)
@@ -5659,10 +5662,10 @@ __git_recent_commits () {
 
   # Careful: most %d will expand to the empty string.  Quote properly!
   # NOTE: we could use %D directly, but it's not available in git 1.9.1 at least.
-  commits=("${(f)"$(_call_program commits git --no-pager log $commit_opts -20 --format='%h%n%d%n%s\ \(%cr\)')"}")
+  commits=("${(f)"$(_call_program commits git --no-pager log $commit_opts -20 --format='%h%n%d%n%s\ \(%cr\)%n%p')"}")
   __git_command_successful $pipestatus || return 1
 
-  for i j k in "$commits[@]" ; do
+  for i j k parents in "$commits[@]" ; do
     # Note: the after-the-colon part must be unique across the entire array;
     # see workers/34768
     if (( $#commit_opts )); then
@@ -5671,20 +5674,36 @@ __git_recent_commits () {
       # description unique (due to workers/34768), which we do by including the
       # hash.  Git always prints enough hash digits to make the output unique.)
       label="[$i]"
-    elif (( distance_from_head == 0 )); then
-      label="[HEAD]   "
-    elif (( distance_from_head == 1 )); then
-      label="[HEAD^]  "
-    elif (( distance_from_head == 2 )); then
-      label="[HEAD^^] "
-    elif (( distance_from_head < 10 )); then
-      label="[HEAD~$distance_from_head] "
+    elif (( distance_from_head )) && [[ $i != $next_first_parent_ancestral_line_commit ]]; then
+      # The first commit (HEAD), and its ancestors along the first-parent line,
+      # get HEAD~$n labels.
+      #
+      # For other commits, we just print the hash.  (${parents} does provide enough
+      # information to compute HEAD~3^2~4 -style labels, though, if somebody cared
+      # enough to implement that.)
+      label="[$i]"
     else
-      label="[HEAD~$distance_from_head]"
+      # Compute a first-parent-ancestry commit's label.
+      if false ; then
+      elif (( distance_from_head == 0 )); then
+        label="[HEAD]   "
+      elif (( distance_from_head == 1 )); then
+        label="[HEAD^]  "
+      elif (( distance_from_head == 2 )); then
+        label="[HEAD^^] "
+      elif (( distance_from_head < 10 )); then
+        label="[HEAD~$distance_from_head] "
+      else
+        label="[HEAD~$distance_from_head]"
+      fi
+      descr+=("@~${distance_from_head}":"${label} $k") # CROSSREF: use the same label as below
+
+      # Prepare for the next first-parent-ancestry commit.
+      (( ++distance_from_head ))
+      next_first_parent_ancestral_line_commit=${parents%% *}
     fi
     # label is now 9 bytes, so the descriptions ($k) will be aligned.
-    descr+=($i:"${label} $k")
-    (( ++distance_from_head ))
+    descr+=($i:"${label} $k") # CROSSREF: use the same label as above
 
     j=${${j# \(}%\)} # strip leading ' (' and trailing ')'
     j=${j/ ->/,}  # Convert " -> master, origin/master".
@@ -5704,7 +5723,7 @@ __git_recent_commits () {
   expl=()
   _wanted heads expl 'head' compadd "$@" -a - heads && ret=0
   expl=()
-  _describe -Vx -t commits 'recent commit object name' descr && ret=0
+  _describe -V -t commits 'recent commit object name' descr && ret=0
   return $ret
 }
 
@@ -5830,7 +5849,7 @@ __git_tags () {
   tags=(${${(f)"$(_call_program tagrefs git for-each-ref --format='"%(refname)"' refs/tags 2>/dev/null)"}#refs/tags/})
   __git_command_successful $pipestatus || return 1
 
-  _wanted tags expl tag compadd "$@" -a - tags
+  _wanted tags expl tag compadd -M 'r:|/=**' "$@" -a - tags
 }
 
 (( $+functions[__git_commit_tags] )) ||
@@ -5853,7 +5872,7 @@ __git_tags_of_type () {
   tags=(${${(M)${(f)"$(_call_program $type-tag-refs "git for-each-ref --format='%(*objecttype)%(objecttype) %(refname)' refs/tags 2>/dev/null")"}:#$type(tag|) *}#$type(tag|) refs/tags/})
   __git_command_successful $pipestatus || return 1
 
-  _wanted $type-tags expl "$type tag" compadd "$@" -a - tags
+  _wanted $type-tags expl "$type tag" compadd -M 'r:|/=**' "$@" -a - tags
 }
 
 # Reference Argument Types
