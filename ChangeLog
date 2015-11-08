@@ -1,3 +1,11 @@
+2015-11-08  Barton E. Schaefer  <schaefer@brasslantern.com>
+
+	* 37080: Src/builtin.c, Src/params.c: use paramtab abstraction more
+	consistently, add explanatory comments
+
+	* 37079: Etc/zsh-development-guide: better description of "optstr"
+	field in struct builtin as used in BUILTIN() macro
+
 2015-11-07  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* 37074: Src/subst.c, Test/D04parameter.ztst: extend previous
