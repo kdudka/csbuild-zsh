@@ -1,3 +1,10 @@
+2015-11-16  Mikael Magnusson  <mikachu@gmail.com>
+
+	* Eric Cook: 36986: Functions/Misc/zed: Add -- to the `functions'
+	builtin calls
+
+	* Eric Cook: 37050: Completion/BSD/Command/_sockstat: minor improvements
+
 2015-11-15  Barton E. Schaefer  <schaefer@zsh.org>
 
 	* 37119: Doc/Zsh/expn.yo: further "Rules" clarifications
