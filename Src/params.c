@@ -2537,6 +2537,7 @@ setarrvalue(Value v, char **val)
 	freearray(val);
 	return;
     }
+
     if (v->start == 0 && v->end == -1) {
 	if (PM_TYPE(v->pm->node.flags) == PM_HASHED)
 	    arrhashsetfn(v->pm, val, 0);
@@ -2545,47 +2546,49 @@ setarrvalue(Value v, char **val)
     } else if (v->start == -1 && v->end == 0 &&
     	    PM_TYPE(v->pm->node.flags) == PM_HASHED) {
     	arrhashsetfn(v->pm, val, 1);
+    } else if ((PM_TYPE(v->pm->node.flags) == PM_HASHED)) {
+	freearray(val);
+	zerr("%s: attempt to set slice of associative array",
+	     v->pm->node.nam);
+	return;
     } else {
 	char **old, **new, **p, **q, **r;
-	int n, ll, i;
+	int pre_assignment_length;
+	int post_assignment_length;
+	int i;
 
-	if ((PM_TYPE(v->pm->node.flags) == PM_HASHED)) {
-	    freearray(val);
-	    zerr("%s: attempt to set slice of associative array",
-		 v->pm->node.nam);
-	    return;
-	}
 	if ((v->flags & VALFLAG_INV) && unset(KSHARRAYS)) {
 	    if (v->start > 0)
 		v->start--;
 	    v->end--;
 	}
 	q = old = v->pm->gsu.a->getfn(v->pm);
-	n = arrlen(old);
+	pre_assignment_length = arrlen(old);
 	if (v->start < 0) {
-	    v->start += n;
+	    v->start += pre_assignment_length;
 	    if (v->start < 0)
 		v->start = 0;
 	}
 	if (v->end < 0) {
-	    v->end += n + 1;
+	    v->end += pre_assignment_length + 1;
 	    if (v->end < 0)
 		v->end = 0;
 	}
 	if (v->end < v->start)
 	    v->end = v->start;
 
-	ll = v->start + arrlen(val);
-	if (v->end <= n)
-	    ll += n - v->end + 1;
+	post_assignment_length = v->start + arrlen(val);
+	if (v->end <= pre_assignment_length)
+	    post_assignment_length += pre_assignment_length - v->end + 1;
 
-	p = new = (char **) zshcalloc(sizeof(char *) * (ll + 1));
+	p = new = (char **) zshcalloc(sizeof(char *)
+		                      * (post_assignment_length + 1));
 
 	for (i = 0; i < v->start; i++)
-	    *p++ = i < n ? ztrdup(*q++) : ztrdup("");
+	    *p++ = i < pre_assignment_length ? ztrdup(*q++) : ztrdup("");
 	for (r = val; *r;)
 	    *p++ = ztrdup(*r++);
-	if (v->end < n)
+	if (v->end < pre_assignment_length)
 	    for (q = old + v->end; *q;)
 		*p++ = ztrdup(*q++);
 	*p = NULL;
