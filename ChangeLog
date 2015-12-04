@@ -1,3 +1,18 @@
+2015-12-03  Daniel Shahaf  <d.s@daniel.shahaf.name>
+
+	* 37253: Src/params.c: Constify two local variables.
+
+	* unposted: Completion/Unix/Command/_getent,
+	Completion/Unix/Command/_mtools,
+	Completion/Unix/Type/_mime_types,
+	Completion/X/Command/_kfmclient, Completion/Zsh/Command/_zed:
+	Remove uneeded executability bits.
+
+	* 37296: Src/utils.c: Avoid needless calloc().
+
+	* 37295: Functions/Zle/backward-kill-word-match,
+	Functions/Zle/kill-word-match: Join kills
+
 2015-12-03  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* unposted: Config/version.mk: update to 5.2-dev-0.
