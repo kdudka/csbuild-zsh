@@ -471,9 +471,10 @@ zexecve(char *pth, char **argv, char **newenvp)
 	if ((fd = open(pth, O_RDONLY|O_NOCTTY)) >= 0) {
 	    argv0 = *argv;
 	    *argv = pth;
+	    execvebuf[0] = '\0';
 	    ct = read(fd, execvebuf, POUNDBANGLIMIT);
 	    close(fd);
-	    if (ct > 0) {
+	    if (ct >= 0) {
 		if (execvebuf[0] == '#') {
 		    if (execvebuf[1] == '!') {
 			for (t0 = 0; t0 != ct; t0++)
@@ -3475,10 +3476,10 @@ execcmd(Estate state, int input, int output, int how, int last1)
 	    restore_queue_signals(q);
 	} else if (is_builtin || is_shfunc) {
 	    LinkList restorelist = 0, removelist = 0;
+	    int do_save = 0;
 	    /* builtin or shell function */
 
-	    if (!forked && varspc) {
-		int do_save = 0;
+	    if (!forked) {
 		if (isset(POSIXBUILTINS)) {
 		    /*
 		     * If it's a function or special builtin --- save
@@ -3497,7 +3498,7 @@ execcmd(Estate state, int input, int output, int how, int last1)
 		    if ((cflags & BINF_COMMAND) || !assign)
 			do_save = 1;
 		}
-		if (do_save)
+		if (do_save && varspc)
 		    save_params(state, varspc, &restorelist, &removelist);
 	    }
 	    if (varspc) {
@@ -3643,6 +3644,8 @@ execcmd(Estate state, int input, int output, int how, int last1)
 		}
 		dont_queue_signals();
 		lastval = execbuiltin(args, assigns, (Builtin) hn);
+		if (do_save & BINF_COMMAND)
+		    errflag &= ~ERRFLAG_ERROR;
 		restore_queue_signals(q);
 		fflush(stdout);
 		if (save[1] == -2) {
