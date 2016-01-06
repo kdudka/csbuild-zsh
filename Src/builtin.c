@@ -4023,12 +4023,62 @@ bin_print(char *name, char **args, Options ops, int func)
     char *start, *endptr, *c, *d, *flag, *buf = NULL, spec[14], *fmt = NULL;
     char **first, **argp, *curarg, *flagch = "'0+- #", save = '\0', nullstr = '\0';
     size_t rcount, count = 0;
+    FILE *fout = stdout;
 #ifdef HAVE_OPEN_MEMSTREAM
     size_t mcount;
-#endif
-    FILE *fout = stdout;
-    Histent ent;
+#define ASSIGN_MSTREAM(BUF,FOUT) \
+    do { \
+        if ((FOUT = open_memstream(&BUF, &mcount)) == NULL) { \
+            zwarnnam(name, "open_memstream failed"); \
+            return 1; \
+        } \
+    } while (0)
+    /*
+     * Some implementations of open_memstream() have a bug such that,
+     * if fflush() is followed by fclose(), another NUL byte is written
+     * to the buffer at the wrong position.  Therefore we must fclose()
+     * before reading.
+     */
+#define READ_MSTREAM(BUF,FOUT) \
+    ((fclose(FOUT) == 0) ? mcount : (size_t)-1)
+#define CLOSE_MSTREAM(FOUT) 0
 
+#else /* simulate HAVE_OPEN_MEMSTREAM */
+
+#define ASSIGN_MSTREAM(BUF,FOUT) \
+    do { \
+        int tempfd; \
+        char *tmpf; \
+        if ((tempfd = gettempfile(NULL, 1, &tmpf)) < 0) { \
+            zwarnnam(name, "can't open temp file: %e", errno); \
+            return 1; \
+        } \
+        unlink(tmpf); \
+        if ((fout = fdopen(tempfd, "w+")) == NULL) { \
+            close(tempfd); \
+            zwarnnam(name, "can't open temp file: %e", errno); \
+            return 1; \
+        } \
+    } while (0)
+#define READ_MSTREAM(BUF,FOUT) \
+    ((((count = ftell(FOUT)), (BUF = (char *)zalloc(count + 1))) && \
+      ((fseek(FOUT, 0L, SEEK_SET) == 0) && !(BUF[count] = '\0')) && \
+      ((count = fread(BUF, 1, count, FOUT)) == count)) ? count : (size_t)-1)
+#define CLOSE_MSTREAM(FOUT) fclose(FOUT)
+
+#endif
+
+#define IS_MSTREAM(FOUT) \
+    (FOUT != stdout && \
+     (OPT_ISSET(ops,'z') || OPT_ISSET(ops,'s') || OPT_ISSET(ops,'v')))
+
+    /* Testing EBADF special-cases >&- redirections */
+#define CLOSE_CLEANLY(FOUT) \
+    (IS_MSTREAM(FOUT) ? CLOSE_MSTREAM(FOUT) == 0 : \
+     ((FOUT == stdout) ? (fflush(FOUT) == 0 || errno == EBADF) : \
+      (fclose(FOUT) == 0)))	/* implies error for -u on a closed fd */
+
+    Histent ent;
     mnumber mnumval;
     double doubleval;
     int intval;
@@ -4036,9 +4086,45 @@ bin_print(char *name, char **args, Options ops, int func)
     zulong zulongval;
     char *stringval;
 
-    if (OPT_ISSET(ops, 'z') + OPT_ISSET(ops, 's') + OPT_ISSET(ops, 'v') > 1) {
-	zwarnnam(name, "only one of -z, -s, or -v allowed");
+    /* Error check option combinations and option arguments */
+
+    if (OPT_ISSET(ops, 'z') +
+	OPT_ISSET(ops, 's') + OPT_ISSET(ops, 'S') +
+	OPT_ISSET(ops, 'v') > 1) {
+	zwarnnam(name, "only one of -s, -S, -v, or -z allowed");
 	return 1;
+    }
+    if ((OPT_ISSET(ops, 'z') | OPT_ISSET(ops, 's') | OPT_ISSET(ops, 'S')) +
+	(OPT_ISSET(ops, 'c') | OPT_ISSET(ops, 'C')) > 1) {
+	zwarnnam(name, "-c or -C not allowed with -s, -S, or -z");
+	return 1;
+    }
+    if ((OPT_ISSET(ops, 'z') | OPT_ISSET(ops, 'v') |
+         OPT_ISSET(ops, 's') | OPT_ISSET(ops, 'S')) +
+	(OPT_ISSET(ops, 'p') | OPT_ISSET(ops, 'u')) > 1) {
+	zwarnnam(name, "-p or -u not allowed with -s, -S, -v, or -z");
+	return 1;
+    }
+    /*
+    if (OPT_ISSET(ops, 'f') &&
+	(OPT_ISSET(ops, 'S') || OPT_ISSET(ops, 'c') || OPT_ISSET(ops, 'C'))) {
+	zwarnnam(name, "-f not allowed with -c, -C, or -S");
+	return 1;
+    }
+    */
+
+    /* -C -- number of columns */
+    if (!fmt && OPT_ISSET(ops,'C')) {
+	char *eptr, *argptr = OPT_ARG(ops,'C');
+	nc = (int)zstrtol(argptr, &eptr, 10);
+	if (*eptr) {
+	    zwarnnam(name, "number expected after -%c: %s", 'C', argptr);
+	    return 1;
+	}
+	if (nc <= 0) {
+	    zwarnnam(name, "invalid number of columns: %s", argptr);
+	    return 1;
+	}
     }
 
     if (func == BIN_PRINTF) {
@@ -4105,7 +4191,7 @@ bin_print(char *name, char **args, Options ops, int func)
 	    }
 	}
 	/* -P option -- interpret as a prompt sequence */
-	if(OPT_ISSET(ops,'P')) {
+	if (OPT_ISSET(ops,'P')) {
 	    /*
 	     * promptexpand uses permanent storage: to avoid
 	     * messy memory management, stick it on the heap
@@ -4119,13 +4205,13 @@ bin_print(char *name, char **args, Options ops, int func)
 	    free(str);
 	}
 	/* -D option -- interpret as a directory, and use ~ */
-	if(OPT_ISSET(ops,'D')) {
+	if (OPT_ISSET(ops,'D')) {
 	    Nameddir d;
 
 	    queue_signals();
 	    /* TODO: finddir takes a metafied file */
 	    d = finddir(args[n]);
-	    if(d) {
+	    if (d) {
 		int dirlen = strlen(d->dir);
 		char *arg = zhalloc(len[n] - dirlen + strlen(d->node.nam) + 2);
 		sprintf(arg, "~%s%s", d->node.nam, args[n] + dirlen);
@@ -4146,20 +4232,6 @@ bin_print(char *name, char **args, Options ops, int func)
 	if (OPT_ISSET(ops,'O'))
 	    flags |= SORTIT_BACKWARDS;
 	strmetasort(args, flags, len);
-    }
-
-    /* -C -- number of columns */
-    if (!fmt && OPT_ISSET(ops,'C')) {
-	char *eptr, *argptr = OPT_ARG(ops,'C');
-	nc = (int)zstrtol(argptr, &eptr, 10);
-	if (*eptr) {
-	    zwarnnam(name, "number expected after -%c: %s", 'C', argptr);
-	    return 1;
-	}
-	if (nc <= 0) {
-	    zwarnnam(name, "invalid number of columns: %s", argptr);
-	    return 1;
-	}
     }
 
     /* -u and -p -- output to other than standard output */
@@ -4188,8 +4260,7 @@ bin_print(char *name, char **args, Options ops, int func)
 	    } else {
 		fdarg = (int)zstrtol(argptr, &eptr, 10);
 		if (*eptr) {
-		    zwarnnam(name, "number expected after -%c: %s", 'u',
-			     argptr);
+		    zwarnnam(name, "number expected after -u: %s", argptr);
 		    return 1;
 		}
 	    }
@@ -4205,6 +4276,10 @@ bin_print(char *name, char **args, Options ops, int func)
 	    return 1;
 	}
     }
+
+    if (OPT_ISSET(ops, 'v') ||
+	(fmt && (OPT_ISSET(ops,'z') || OPT_ISSET(ops,'s'))))
+	ASSIGN_MSTREAM(buf,fout);
 
     /* -c -- output in columns */
     if (!fmt && (OPT_ISSET(ops,'c') || OPT_ISSET(ops,'C'))) {
@@ -4357,19 +4432,29 @@ bin_print(char *name, char **args, Options ops, int func)
 	    }
 	    fputc(OPT_ISSET(ops,'N') ? '\0' : '\n', fout);
 	}
-	/* Testing EBADF special-cases >&- redirections */
-	if ((fout != stdout) ? (fclose(fout) != 0) :
-	    (fflush(fout) != 0 && errno != EBADF)) {
+	if (IS_MSTREAM(fout) && (rcount = READ_MSTREAM(buf,fout)) == -1)
+	    ret = 1;
+	if (!CLOSE_CLEANLY(fout) || ret) {
             zwarnnam(name, "write error: %e", errno);
             ret = 1;
+	}
+	if (buf) {
+	    /* assert: we must be doing -v at this point */
+	    queue_signals();
+	    if (ret)
+		free(buf);
+	    else
+		setsparam(OPT_ARG(ops, 'v'),
+			  metafy(buf, rcount, META_REALLOC));
+	    unqueue_signals();
 	}
 	return ret;
     }
 
     /* normal output */
     if (!fmt) {
-	if (OPT_ISSET(ops, 'z') || OPT_ISSET(ops, 's') ||
-	    OPT_ISSET(ops, 'v')) {
+	if (OPT_ISSET(ops, 'z') || OPT_ISSET(ops, 'v') ||
+	    OPT_ISSET(ops, 's') || OPT_ISSET(ops, 'S')) {
 	    /*
 	     * We don't want the arguments unmetafied after all.
 	     */
@@ -4377,13 +4462,6 @@ bin_print(char *name, char **args, Options ops, int func)
 		metafy(args[n], len[n], META_NOALLOC);
 	}
 
-	/* -v option -- store the arguments in the named parameter */
-	if (OPT_ISSET(ops,'v')) {
-	    queue_signals();
-	    setsparam(OPT_ARG(ops, 'v'), sepjoin(args, NULL, 0));
-	    unqueue_signals();
-	    return 0;
-	}
 	/* -z option -- push the arguments onto the editing buffer stack */
 	if (OPT_ISSET(ops,'z')) {
 	    queue_signals();
@@ -4474,13 +4552,23 @@ bin_print(char *name, char **args, Options ops, int func)
 			  OPT_ISSET(ops,'N') ? '\0' : ' ', fout);
 	    }
 	}
-	if (!(OPT_ISSET(ops,'n') || nnl))
+	if (!(OPT_ISSET(ops,'n') || OPT_ISSET(ops, 'v') || nnl))
 	    fputc(OPT_ISSET(ops,'N') ? '\0' : '\n', fout);
-	/* Testing EBADF special-cases >&- redirections */
-	if ((fout != stdout) ? (fclose(fout) != 0) :
-	    (fflush(fout) != 0 && errno != EBADF)) {
+	if (IS_MSTREAM(fout) && (rcount = READ_MSTREAM(buf,fout)) == -1)
+	    ret = 1;
+	if (!CLOSE_CLEANLY(fout) || ret) {
             zwarnnam(name, "write error: %e", errno);
             ret = 1;
+	}
+	if (buf) {
+	    /* assert: we must be doing -v at this point */
+	    queue_signals();
+	    if (ret)
+		free(buf);
+	    else
+		setsparam(OPT_ARG(ops, 'v'),
+			  metafy(buf, rcount, META_REALLOC));
+	    unqueue_signals();
 	}
 	return ret;
     }
@@ -4490,20 +4578,6 @@ bin_print(char *name, char **args, Options ops, int func)
      * output (printf itself, or print -f).  We still have to handle
      * special cases of printing to a ZLE buffer or the history, however.
      */
-
-    if (OPT_ISSET(ops,'z') || OPT_ISSET(ops,'s') || OPT_ISSET(ops, 'v')) {
-#ifdef HAVE_OPEN_MEMSTREAM
-    	if ((fout = open_memstream(&buf, &mcount)) == NULL)
-	    zwarnnam(name, "open_memstream failed");
-#else
-	int tempfd;
-	char *tmpf;
-	if ((tempfd = gettempfile(NULL, 1, &tmpf)) < 0
-	 || (fout = fdopen(tempfd, "w+")) == NULL)
-	    zwarnnam(name, "can't open temp file: %e", errno);
-	unlink(tmpf);
-#endif
-    }
 
     /* printf style output */
     *spec = '%';
@@ -4768,11 +4842,9 @@ bin_print(char *name, char **args, Options ops, int func)
 		}
 		zwarnnam(name, "%s: invalid directive", start);
 		if (*c) c[1] = save;
-		/* Testing EBADF special-cases >&- redirections */
-		if ((fout != stdout) ? (fclose(fout) != 0) :
-		    (fflush(fout) != 0 && errno != EBADF)) {
+		/* Why do we care about a clean close here? */
+		if (!CLOSE_CLEANLY(fout))
 		    zwarnnam(name, "write error: %e", errno);
-		}
 #ifdef HAVE_OPEN_MEMSTREAM
 		if (buf)
 		    free(buf);
@@ -4870,47 +4942,34 @@ bin_print(char *name, char **args, Options ops, int func)
 	/* if there are remaining args, reuse format string */
     } while (*argp && argp != first && !fmttrunc && !OPT_ISSET(ops,'r'));
 
-    if (OPT_ISSET(ops,'z') || OPT_ISSET(ops,'s') || OPT_ISSET(ops,'v')) {
-#ifdef HAVE_OPEN_MEMSTREAM
-	putc(0, fout);		/* not needed?  open_memstream() maintains? */
-	fclose(fout);
-	fout = NULL;
-	rcount = mcount;	/* now includes the trailing NUL we added */
-#else
-	rewind(fout);
-	buf = (char *)zalloc(count + 1);
-	rcount = fread(buf, 1, count, fout);
-	if (rcount < count)
-	    zwarnnam(name, "i/o error: %e", errno);
-	buf[rcount++] = '\0';
-#endif
+    if (IS_MSTREAM(fout)) {
 	queue_signals();
-	stringval = metafy(buf, rcount - 1, META_REALLOC);
-	if (OPT_ISSET(ops,'z')) {
-	    zpushnode(bufstack, stringval);
-	} else if (OPT_ISSET(ops,'v')) {
-	    setsparam(OPT_ARG(ops, 'v'), stringval);
+	if ((rcount = READ_MSTREAM(buf,fout)) == -1) {
+	    zwarnnam(name, "i/o error: %e", errno);
+	    if (buf)
+		free(buf);
 	} else {
-	    ent = prepnexthistent();
-	    ent->node.nam = stringval;
-	    ent->stim = ent->ftim = time(NULL);
-	    ent->node.flags = 0;
-	    ent->words = (short *)NULL;
-	    addhistnode(histtab, ent->node.nam, ent);
+	    stringval = metafy(buf, rcount, META_REALLOC);
+	    if (OPT_ISSET(ops,'z')) {
+		zpushnode(bufstack, stringval);
+	    } else if (OPT_ISSET(ops,'v')) {
+		setsparam(OPT_ARG(ops, 'v'), stringval);
+	    } else {
+		ent = prepnexthistent();
+		ent->node.nam = stringval;
+		ent->stim = ent->ftim = time(NULL);
+		ent->node.flags = 0;
+		ent->words = (short *)NULL;
+		addhistnode(histtab, ent->node.nam, ent);
+	    }
 	}
 	unqueue_signals();
     }
 
-#ifdef HAVE_OPEN_MEMSTREAM
-    if (fout)
-#endif
+    if (!CLOSE_CLEANLY(fout))
     {
-	/* Testing EBADF special-cases >&- redirections */
-	if ((fout != stdout) ? (fclose(fout) != 0) :
-	    (fflush(fout) != 0 && errno != EBADF)) {
-	    zwarnnam(name, "write error: %e", errno);
-	    ret = 1;
-	}
+	zwarnnam(name, "write error: %e", errno);
+	ret = 1;
     }
     return ret;
 }
