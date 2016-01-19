@@ -1230,7 +1230,7 @@ zglob(LinkList list, LinkNode np, int nountok)
 	char *s;
 	int sense, qualsfound;
 	off_t data;
-	char *sdata, *newcolonmod;
+	char *sdata, *newcolonmod, *ptr;
 	int (*func) _((char *, Statptr, off_t, char *));
 
 	/*
@@ -1273,6 +1273,9 @@ zglob(LinkList list, LinkNode np, int nountok)
 	*s++ = 0;
 	if (qualsfound == 2)
 	    s += 2;
+	for (ptr = s; *ptr; ptr++)
+	    if (*ptr == Dash)
+		*ptr = '-';
 	while (*s && !newcolonmod) {
 	    func = (int (*) _((char *, Statptr, off_t, char *)))0;
 	    if (idigit(*s)) {
@@ -3476,7 +3479,7 @@ static void
 zshtokenize(char *s, int flags)
 {
     char *t;
-    int bslash = 0, seen_brct = 0;
+    int bslash = 0;
 
     for (; *s; s++) {
       cont:
@@ -3507,20 +3510,6 @@ zshtokenize(char *s, int flags)
 	    *t = Inang;
 	    *s = Outang;
 	    break;
-	case '[':
-	    if (bslash)
-		s[-1] = (flags & ZSHTOK_SUBST) ? Bnullkeep : Bnull;
-	    else {
-		seen_brct = 1;
-		*s = Inbrack;
-	    }
-	    break;
-	case '-':
-	    if (bslash)
-		s[-1] = (flags & ZSHTOK_SUBST) ? Bnullkeep : Bnull;
-	    else if (seen_brct) /* see corresonding code in lex.c */
-		*s = Dash;
-	    break;
 	case '(':
 	case '|':
 	case ')':
@@ -3531,10 +3520,13 @@ zshtokenize(char *s, int flags)
 	case '^':
 	case '#':
 	case '~':
+	case '[':
 	case ']':
 	case '*':
 	case '?':
 	case '=':
+	case '-':
+	case '!':
 	    for (t = ztokens; *t; t++) {
 		if (*t == *s) {
 		    if (bslash)
