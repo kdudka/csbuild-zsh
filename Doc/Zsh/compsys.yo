@@ -3461,6 +3461,12 @@ completion has been tried.  A function will only be called once unless
 it explicitly reinserts itself into the array.
 
 startitem()
+findex(_absolute_command_paths)
+item(tt(_absolute_command_paths))(
+This function completes external commands as absolute paths (unlike
+tt(_command_names -e) which completes their basenames).  It takes no
+arguments.
+)
 findex(_all_labels)
 item(tt(_all_labels) [ tt(-x) ] [ tt(-12VJ) ] var(tag) var(name) var(descr) [ var(command) var(arg) ... ])(
 This is a convenient interface to the tt(_next_label) function below,
@@ -4202,6 +4208,12 @@ be given after the fieldname, separated from it by a colon.
 All arguments after the required field name are passed to
 tt(compadd) when generating matches from the style value, or to 
 the functions for the fields if they are called.
+)
+findex(_command_names)
+item(tt(_command_names) [ tt(-e) | tt(-) ])(
+This function completes words that are valid at command position: names of
+aliases, builtins, hashed commands, functions, and so on.  With the tt(-e)
+flag, only hashed commands are completed.  The tt(-) flag is ignored.
 )
 findex(_describe)
 redef(SPACES)(0)(tt(ifztexi(NOTRANS(@ @ @ @ @ @ @ @ @ @ ))ifnztexi(          )))
