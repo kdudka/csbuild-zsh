@@ -1745,13 +1745,15 @@ bin_zparseopts(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 	for (p = o; *p; p++) {
 	    if (*p == '\\' && p[1])
 		p++;
-	    else if (*p == '+') {
-		f |= ZOF_MULT;
-		*p = '\0';
-		p++;
-		break;
-	    } else if (*p == ':' || *p == '=')
-		break;
+	    else if (p > o) {	/* At least one character of option name */
+		if (*p == '+') {
+		    f |= ZOF_MULT;
+		    *p = '\0';
+		    p++;
+		    break;
+		} else if (*p == ':' || *p == '=')
+		    break;
+	    }
 	}
 	if (*p == ':') {
 	    f |= ZOF_ARG;
@@ -1789,6 +1791,7 @@ bin_zparseopts(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 		p++;
 	    *n++ = *p;
 	}
+	*n = '\0';
 	if (get_opt_desc(o)) {
 	    zwarnnam(nam, "option defined more than once: %s", o);
 	    return 1;
@@ -1833,7 +1836,8 @@ bin_zparseopts(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 		    if (o[1]) {
 			add_opt_val(d, o + 1);
 			break;
-		    } else if (!(d->flags & ZOF_OPT)) {
+		    } else if (!(d->flags & ZOF_OPT) ||
+			       (pp[1] && pp[1][0] != '-')) {
 			if (!pp[1]) {
 			    zwarnnam(nam, "missing argument for option: %s",
 				    d->name);
@@ -1859,7 +1863,8 @@ bin_zparseopts(char *nam, char **args, UNUSED(Options ops), UNUSED(int func))
 
 		if (*e)
 		    add_opt_val(d, e);
-		else if (!(d->flags & ZOF_OPT)) {
+		else if (!(d->flags & ZOF_OPT) ||
+			 (pp[1] && pp[1][0] != '-')) {
 		    if (!pp[1]) {
 			zwarnnam(nam, "missing argument for option: %s",
 				d->name);

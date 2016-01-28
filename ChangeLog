@@ -1,9 +1,25 @@
+2016-01-27  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 37804 (plus error return per 37816): Src/loop.c: first word
+	following "repeat" should be evaluated as math, to match docs
+
+	* 37819: Src/hist.c: zshaddhistory hook is intended to work for
+	any history file write, even upon keyboard interrupt
+
+	* 37810: Src/Modules/zutil.c: repair handling of backslashes and
+	of names starting with "+"/":"/"=" in zparseopts option specs
+
 2016-01-26  Eric Cook  <llua@gmx.com>
 
 	* 37788: Completion/Zsh/Context/_subscript: fix completion of
 	associative array keys
 
-2016-01-26  Barton E. Schaefer  <schaefer@brasslantern.com>
+2016-01-26  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 37802: Doc/Zsh/mod_zutil.yo: Clarify zparseopts description.
+
+	* 37802: Src/Modules/zutil.c: zparseopts "X::" specifier should
+	also look for the optional argument in the word after "-X".
 
 	* 37785: Src/params.c: skip autoload parameters for "typeset -p"
 
