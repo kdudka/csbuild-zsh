@@ -1,3 +1,20 @@
+2016-02-09  Daniel Shahaf  <d.s@daniel.shahaf.name>
+
+	* 37924: Completion/Unix/Command/_git: Completion: _git:
+	Complete files for 'check-ignore'
+
+	* 37923: Completion/Debian/Command/_bts: Completion: _bts:
+	Fix quoting of $DEBEMAIL.
+
+	* 37922: Util/zyodl.vim: zyodl.vim: Add alternative installation
+	instructions.
+
+	* 37896: Doc/Zsh/builtins.yo: zshbuiltins: Document argv
+	behaviour of 'source' without arguments
+
+	* unposted: ChangeLog: Move the 37678 entry to the correct
+	location (and author).
+
 2016-02-07  Dominik Ritter  <dritter03@googlemail.com>
 
 	* unposted: Doc/Zsh/mod_complist.yo: complist module docs:
@@ -159,16 +176,16 @@
 	Src/zsh.h, Test/D02glob.ztst: also ! and ^ need to be tokenised
 	in character set.
 
+	* 37678: Src/glob.c, Src/lex.c, Src/pattern.c, Src/utils.c,
+	Src/zsh.h, Test/D02glob.ztst: Now possible to quote "-" in
+	a pattern range.
+
 2016-01-18  Barton E. Schaefer  <schaefer@zsh.org>
 
 	* 37682: Src/lex.c: when SH_GLOB is set (e.g. in "sh" emulation)
 	do not parse bare parentheses in arguments as a pattern grouping.
 
 2016-01-18  Daniel Shahaf  <d.s@daniel.shahaf.name>
-
-	* 37678: Src/glob.c, Src/lex.c, Src/pattern.c, Src/utils.c,
-	Src/zsh.h, Test/D02glob.ztst: Now possible to quote "-" in
-	a pattern range.
 
 	* 37634: Completion/Unix/Command/_man: _man: Support subsection
 	names such as '3p'.
