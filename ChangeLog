@@ -1,3 +1,7 @@
+2016-03-26  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Dmitry Marakasov: 38162: accept G for gigabytes in limit command
+
 2016-03-21  Daniel Shahaf  <d.s@daniel.shahaf.name>
 
 	* 38182: Completion/Unix/Command/_git: Invoke reflog completion
@@ -12,6 +16,17 @@
 
 	* m0viefreak: 38145: Doc/Zsh/zle.yo, Src/Zle/zle_params.c: Make
 	isearch and completion suffix variables visible as parameters.
+
+2016-03-20  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 38191: Src/Zle/zle_main.c: in reexpandprompt(), do not free global
+	pointers until after promptexpand() in case they are referenced from
+	signal handlers, and do additional re-entrancy checks in case of
+	window size changes during promptexpand().
+
+2016-03-20  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 38188: Src/pattern.c: signal re-entrancy, maybe
 
 2016-03-19  Mikael Magnusson  <mikachu@gmail.com>
 
