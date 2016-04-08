@@ -1161,6 +1161,7 @@ get_comp_string(void)
     inpush(dupstrspace(linptr), 0, NULL);
     strinbeg(0);
     wordpos = cp = rd = ins = oins = linarr = parct = ia = redirpos = 0;
+    we = wb = zlemetacs;
     tt0 = NULLTOK;
 
     /* This loop is possibly the wrong way to do this.  It goes through *
@@ -1238,6 +1239,20 @@ get_comp_string(void)
 	    /* Record if we haven't had the command word yet */
 	    if (wordpos == redirpos)
 		redirpos++;
+	    if (zlemetacs < (zlemetall - inbufct) &&
+		zlemetacs >= wordbeg && wb == we) {
+		/* Cursor is in the middle of a redirection, treat as a word */
+		we = zlemetall - (inbufct + addedx);
+		if (addedx && we > wb) {
+		    /* Assume we are in {param}> form, wb points at "{" */
+		    wb++;
+		    /* Should complete parameter names here */
+		} else {
+		    /* In "2>" form, zlemetacs points at "2" */
+		    wb = zlemetacs;
+		    /* Should insert a space under cursor here */
+		}
+	    }
         }
 	if (tok == DINPAR)
 	    tokstr = NULL;
@@ -1849,8 +1864,12 @@ get_comp_string(void)
 		    ocs = zlemetacs;
 		    zlemetacs = i;
 		    foredel(skipchars, CUT_RAW);
-		    if ((zlemetacs = ocs) > --i)
+		    if ((zlemetacs = ocs) > --i) {
 			zlemetacs -= skipchars;
+			/* do not skip past the beginning of the word */
+			if (wb > zlemetacs)
+			    zlemetacs = wb;
+		    }
 		    we -= skipchars;
 		}
 	    } else {
@@ -1861,6 +1880,9 @@ get_comp_string(void)
 		    zlemetacs = we - skipchars;
 		else
 		    zlemetacs = ocs;
+		/* do not skip past the beginning of the word */
+		if (wb > zlemetacs)
+		    zlemetacs = wb;
 		we -= skipchars;
 	    }
 	    /* we need to get rid of all the quotation bits... */
