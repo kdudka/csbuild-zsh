@@ -1,3 +1,20 @@
+2016-04-23  Daniel Shahaf  <d.s@daniel.shahaf.name>
+
+	* 38316: Completion/Unix/Command/_git: _git-rebase: Complete
+	any committish for the second argument
+
+2016-04-23  m0viefreak  <m0viefreak.cm@googlemail.com>
+
+	* 38291: Doc/Zsh/zle.yo, Src/Zle/zle_params.c: Change names of
+	ISEARCH_* parameters to ISEARCHMATCH_*
+
+2016-04-23  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Mikael Berthe: 38307: Src/Modules/pcre.c: PCRE segfault when
+	parenthesized group matches nothing (cf. 37515)
+
+	* unposted: Test/V07pcre.ztst: regression test for 38307
+
 2016-04-22  Barton E. Schaefer  <schaefer@zsh.org>
 
 	* 38306: Src/builtin.c: in printf formats, treat a missing
