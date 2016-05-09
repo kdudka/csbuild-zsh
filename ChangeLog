@@ -1,3 +1,39 @@
+2016-05-09  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted: Functions/Zle/bracketed-paste-magic: update documentary
+	comments to remove references to self-insert-unmeta.
+
+2016-05-09  Frank Terbeck  <ft@bewatermyfriend.org>
+
+	* 38422: Completion/Unix/Type/_baudrate,
+	Completion/Unix/Type/_baudrates: _baudrate -> _baudrates
+
+	* 38426: Completion/Unix/Type/_baudrates: _baudrates: Use 2 space
+	indentation
+
+	* 38424: Completion/BSD/Command/_cu, Completion/Unix/Command/_gdb,
+	Completion/Unix/Command/_joe, Completion/Unix/Command/_picocom,
+	Completion/Unix/Command/_screen: Use _baudrates helper instead of
+	_baudrate
+
+	* 38421: Completion/Unix/Type/_baudrates: _baudrates: Fit better
+	into the general completion framework
+
+	* 38425: Completion/BSD/Command/_cu: _cu: Remove old -d option of
+	_baudrates
+
+	* 38420: Completion/Unix/Type/_baudrates: _baudrates: Make style
+	lookups fit better with the rest of compsys
+
+2016-05-06  Daniel Shahaf  <d.s@daniel.shahaf.name>
+
+	* 38401: Completion/Debian/Type/_deb_packages: New completion
+	for source packages.
+
+2016-05-06  Axel Beckert  <abe@deuxchevaux.org>
+
+	* unposted: Doc/Zsh/builtins.yo: Fix typo.
+
 2016-05-04  Daniel Shahaf  <d.s@daniel.shahaf.name>
 
 	* 38402: Completion/Zsh/Command/_precommand: Complete
