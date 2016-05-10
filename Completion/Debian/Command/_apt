@@ -462,7 +462,8 @@ _apt-get () {
     /$'update\0'/ \| \
     /$'upgrade\0'/ \| \
     \( \
-    /$'install\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" avail' \# \
+    /$'install\0'\|$'download\0'\|$'source\0'\|$'build-dep\0'/ \
+      /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" avail' \# \
     /$'[^\0/]#/'/ /$'[^\0/]#\0'/ ':release name::_apt_releases' \) \| \
     /$'remove\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
     /$'purge\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
@@ -472,13 +473,11 @@ _apt-get () {
     /$'autoclean\0'/ \| \
     /$'changelog\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" avail' \# \| \
     /$'check\0'/ \| \
-    /$'source\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" avail' \# \| \
-    /$'build-dep\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" avail' \# \| \
     /$'autoremove\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
     /$'help\0/' \| \
     /$'markauto\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
     /$'unmarkauto\0'/ /$'[^\0]#\0'/ ':packages::_deb_packages "$expl_packages[@]" installed' \# \| \
-    /"[]"/	':argument-1::compadd "$expl_action[@]" update upgrade install remove purge dist-upgrade dselect-upgrade clean autoclean changelog check source build-dep autoremove help markauto unmarkauto'
+    /"[]"/	':argument-1::compadd "$expl_action[@]" update upgrade install remove purge dist-upgrade dselect-upgrade clean autoclean changelog check source build-dep autoremove help markauto unmarkauto download'
 
   _apt-get () {
     local expl_action expl_packages
@@ -592,8 +591,10 @@ _apt_releases_update () {
   if ( [[ ${+_apt_releases} -eq 0 ]] ||
       _cache_invalid APT_releases ) && ! _retrieve_cache APT_releases;
   then
+    local -a tmp=("${(f)$(apt-cache policy)}")
     _apt_releases=(
-${${${${(M)${(f)"$(apt-cache policy)"}:#*release*}#*a=}%%,*}:#now}
+${${${${(M)tmp:#*release*}#*a=}%%,*}:#now}
+${${${${(M)tmp:#*release*n=*}#*n=}%%,*}:#now}
     )
     typeset -U _apt_releases
     _store_cache APT_releases _apt_releases
