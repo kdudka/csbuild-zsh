@@ -1,3 +1,23 @@
+2016-07-08  Oliver Kiddle  <opk@zsh.org>
+
+	* 38812: Completion/BSD/Command/_chflags,
+	Completion/Unix/Command/_dmesg, Completion/Unix/Command/_env,
+	Completion/Unix/Command/_ln, Completion/Unix/Command/_xmlsoft,
+	Completion/Unix/Command/_ls, Completion/Unix/Command/_service,
+	Completion/Unix/Command/_touch, Completion/Unix/Command/_script,
+	Completion/X/Command/_x_utils, Completion/Zsh/Command/_vared:
+	a few new completions and update some command options
+
+	* 38810: Src/Zle/textobjects.c: fix cursor positioning
+	and repeated invocations when widgets used from emacs mode
+
+	* 38809: Src/zsh.h, Src/prompt.c, Src/Zle/zle_refresh.c:
+	fix tracking of colour attributes and restore them when
+	turning bold off
+
+	* unposted: Doc/Zsh/builtins.yo, Doc/Zsh/compsys.yo,
+	Doc/Zsh/options.yo, Doc/Zsh/zle.yo: fix duplicated words
+
 2016-07-08  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 38796: Functions/Zle/match-words-by-style: fix subword
