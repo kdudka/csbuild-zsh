@@ -1407,7 +1407,7 @@ _git-revert () {
     '(-n --no-commit)'{-n,--no-commit}'[do not commit the reversion]' \
     '(-s --signoff)'{-s,--signoff}'[add Signed-off-by line at the end of the commit message]' \
     '--strategy=[use given merge strategy]:merge strategy:__git_merge_strategies' \
-    '*'{-X,--strategy-option=}'[pass merge-strategy-specific option to merge strategy]:option'
+    '*'{-X,--strategy-option=}'[pass merge-strategy-specific option to merge strategy]:option' \
     '(-S --gpg-sign --no-gpg-sign)'{-S-,--gpg-sign=-}'[GPG-sign the commit]::key id' \
     '(-S --gpg-sign --no-gpg-sign)--no-gpg-sign[do not GPG-sign the commit]' \
     ': :__git_commits'
@@ -2701,11 +2701,16 @@ _git-config () {
           ;;
       esac
       local z=$'\0'
+
+      # Set $parts to the $git_options_static element that corresponds to $line[1]
+      # (the option name whose value is currently being completed).  The elements
+      # of $parts are the colon-separated elements of the $git_options_static element.
       declare -a parts
       parts=("${(S@0)${git_options_static[(r)(#i)${line[1]}:*]}//(#b)(*[^\\]|):/$match[1]$z}")
       if (( $#parts < 2 )) && [[ $line[1] == [^.]##.*.[^.]## ]]; then
         parts=("${(S@0)${git_options_static[(r)(#i)${line[1]%%.*}.\*.${line[1]##*.}:*]}//(#b)(*[^\\]|):/$match[1]$z}")
       fi
+
       (( $#parts >= 4 )) || return ret
       case $parts[4] in
         ('->'*)
@@ -6762,8 +6767,8 @@ __git_setup_merge_options () {
     '(         --no-squash)--squash[merge, but do not commit]'
     '(--squash            )--no-squash[merge and commit]'
     '--ff-only[refuse to merge unless HEAD is up to date or merge can be resolved as a fast-forward]'
-    '(-S --gpg-sign --no-gpg-sign)'{-S-,--gpg-sign=}'[GPG-sign the commit]::key id' \
-    '(-S --gpg-sign --no-gpg-sign)--no-gpg-sign[do not GPG-sign the commit]' \
+    '(-S --gpg-sign --no-gpg-sign)'{-S-,--gpg-sign=}'[GPG-sign the commit]::key id'
+    '(-S --gpg-sign --no-gpg-sign)--no-gpg-sign[do not GPG-sign the commit]'
     '*'{-s,--strategy=}'[use given merge strategy]:merge strategy:__git_merge_strategies'
     '*'{-X,--strategy-option=}'[pass merge-strategy-specific option to merge strategy]:option'
     '(--verify-signatures)--verify-signatures[verify the commits being merged or abort]'
