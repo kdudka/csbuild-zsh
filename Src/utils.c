@@ -1157,7 +1157,7 @@ finddir(char *s)
     scanhashtable(nameddirtab, 0, 0, 0, finddir_scan, 0);
 
     ares = subst_string_by_hook("zsh_directory_name", "d", finddir_full);
-    if (ares && arrlen(ares) >= 2 &&
+    if (ares && arrlen_ge(ares, 2) &&
 	(len = (int)zstrtol(ares[1], NULL, 10)) > finddir_best) {
 	/* better duplicate this string since it's come from REPLY */
 	finddir_last = (Nameddir)hcalloc(sizeof(struct nameddir));
@@ -2278,6 +2278,46 @@ arrlen(char **s)
 
     for (count = 0; *s; s++, count++);
     return count;
+}
+
+/* Return TRUE iff arrlen(s) >= lower_bound, but more efficiently. */
+
+/**/
+mod_export char
+arrlen_ge(char **s, unsigned lower_bound)
+{
+    while (lower_bound--)
+	if (!*s++)
+	    return 0 /* FALSE */;
+
+    return 1 /* TRUE */;
+}
+
+/* Return TRUE iff arrlen(s) > lower_bound, but more efficiently. */
+
+/**/
+mod_export char
+arrlen_gt(char **s, unsigned lower_bound)
+{
+    return arrlen_ge(s, 1+lower_bound);
+}
+
+/* Return TRUE iff arrlen(s) <= upper_bound, but more efficiently. */
+
+/**/
+mod_export char
+arrlen_le(char **s, unsigned upper_bound)
+{
+    return arrlen_lt(s, 1+upper_bound);
+}
+
+/* Return TRUE iff arrlen(s) < upper_bound, but more efficiently. */
+
+/**/
+mod_export char
+arrlen_lt(char **s, unsigned upper_bound)
+{
+    return !arrlen_ge(s, upper_bound);
 }
 
 /* Skip over a balanced pair of parenthesis. */

@@ -2026,7 +2026,7 @@ getstrvalue(Value v)
 	else {
 	    if (v->start < 0)
 		v->start += arrlen(ss);
-	    s = (v->start >= arrlen(ss) || v->start < 0) ?
+	    s = (arrlen_le(ss, v->start) || v->start < 0) ?
 		(char *) hcalloc(1) : ss[v->start];
 	}
 	return s;
@@ -2225,13 +2225,13 @@ getarrvalue(Value v)
 	v->start += arrlen(s);
     if (v->end < 0)
 	v->end += arrlen(s) + 1;
-    if (v->start > arrlen(s) || v->start < 0)
+    if (arrlen_lt(s, v->start) || v->start < 0)
 	s = arrdup(nular);
     else
 	s = arrdup(s + v->start);
     if (v->end <= v->start)
 	s[0] = NULL;
-    else if (v->end - v->start <= arrlen(s))
+    else if (arrlen_ge(s, v->end - v->start))
 	s[v->end - v->start] = NULL;
     return s;
 }

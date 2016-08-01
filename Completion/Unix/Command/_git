@@ -1959,8 +1959,8 @@ _git-config () {
   # TODO: Add support for merge.*. (merge driver), diff.*. (diff driver), and filter.*. (filter driver) options
   # (see gitattributes(5)).
   # TODO: .path options should take absolute paths.
-  declare -a git_options_static
-  git_options_static=(
+  declare -a git_options
+  git_options=(
     advice.pushNonFastForward:'show advice when git push refuses non-fast-forward refs::->bool:true'
     advice.pushUpdateRejected:'combined setting for advice.push*::->bool:true'
     advice.pushNonFFCurrent:'show advice when git push fails due to a non-fast-forward update to the current branch::->bool:true'
@@ -2454,6 +2454,44 @@ _git-config () {
     user.signingkey:'default GPG key to use when creating signed tags::__git_gpg_secret_keys'
     web.browser:'web browser to use::__git_browsers')
 
+  declare -a git_present_options # 'present' is an adjective
+  git_present_options=(
+    ${${${(0)"$(_call_program gettable-options git config -z --list)"}%%$'\n'*}//:/\\:}
+  )
+
+  # Add to $git_options options from the config file that aren't already in $git_options.
+  () {
+    local -a -U sections_that_permit_arbitrary_subsection_names=(
+      alias
+      pager
+      pretty
+      remotes
+      ${(u)${(M)${git_options%%:*}:#*[.][*][.]*}%%.*}
+    )
+    local key
+    for key in $git_present_options ; do
+      if (( ${+git_options[(r)(#i)${(b)key}:*]} )); then
+        # $key is already in git_options
+        continue 
+      elif (( ${+sections_that_permit_arbitrary_subsection_names[(r)${(b)key%%.*}]} )); then
+        if [[ $key == *.*.* ]]; then
+          # If $key isn't an instance of a known foo.*.bar:baz $git_options entry...
+          if ! (( ${+git_options[(r)(#i)${(b)key%%.*}.[*].${(b)key##*.}:*]} )); then
+            # ... then add it.
+            git_options+="${key}:unknown option name"
+          fi
+        else
+          # $key is of the form "foo.bar" where 'foo' is known
+          # No need to add it; "foo.<TAB>' will find 'bar' via another codepath later
+          # ### TODO: that "other codepath" will probably run git config -z again, redundantly.
+          continue
+        fi
+      else
+        git_options+="${key}:unknown option name"
+      fi
+    done
+  }
+
   case $state in
     (section)
       __git_config_sections -b '(|)' '^' section-names 'section name' $* && ret=0
@@ -2474,10 +2512,10 @@ _git-config () {
 
       if compset -P '[^.]##.*.'; then
         declare -a match mbegin mend
-        # When completing 'remote.foo.<TAB>', offer 'bar' if $git_options_static contains 'remote.foo.bar'.
-        options+=(${${${${(M)git_options_static:#(#i)${IPREFIX}[^.:]##:*}#(#i)${IPREFIX}}/#(#b)([^:]##:)([^\\:]#(\\?[^\\:]#)#:[^\\:]#(\\?[^\\:]#)#:->bool)/$match[1]whether or not to $match[2]}/#(#b)([^:]##:([^\\:]#(\\?[^\\:]#)#))*/$match[1]})
-        # When completing 'remote.foo.<TAB>', offer 'bar' if $git_options_static contains 'remote.*.bar'.
-        options+=(${${${${(M)git_options_static:#(#i)${IPREFIX%%.*}.\*.[^.:]##:*}#(#i)${IPREFIX%%.*}.\*.}/#(#b)([^:]##:)([^\\:]#(\\?[^\\:]#)#:[^\\:]#(\\?[^\\:]#)#:->bool)/$match[1]whether or not to $match[2]}/#(#b)([^:]##:([^\\:]#(\\?[^\\:]#)#))*/$match[1]})
+        # When completing 'remote.foo.<TAB>', offer 'bar' if $git_options contains 'remote.foo.bar'.
+        options+=(${${${${(M)git_options:#(#i)${IPREFIX}[^.:]##:*}#(#i)${IPREFIX}}/#(#b)([^:]##:)([^\\:]#(\\?[^\\:]#)#:[^\\:]#(\\?[^\\:]#)#:->bool)/$match[1]whether or not to $match[2]}/#(#b)([^:]##:([^\\:]#(\\?[^\\:]#)#))*/$match[1]})
+        # When completing 'remote.foo.<TAB>', offer 'bar' if $git_options contains 'remote.*.bar'.
+        options+=(${${${${(M)git_options:#(#i)${IPREFIX%%.*}.\*.[^.:]##:*}#(#i)${IPREFIX%%.*}.\*.}/#(#b)([^:]##:)([^\\:]#(\\?[^\\:]#)#:[^\\:]#(\\?[^\\:]#)#:->bool)/$match[1]whether or not to $match[2]}/#(#b)([^:]##:([^\\:]#(\\?[^\\:]#)#))*/$match[1]})
 
         declare -a labels
         labels=(
@@ -2511,8 +2549,8 @@ _git-config () {
       elif compset -P '[^.]##.'; then
         local opt
         declare -a match mbegin mend
-        for opt in ${${${${(M)git_options_static:#(#i)${IPREFIX}[^.:]##:*}#(#i)${IPREFIX}}/#(#b)([^:]##:)([^\\:]#(\\?[^\\:]#)#:[^\\:]#(\\?[^\\:]#)#:->bool)/$match[1]whether or not to $match[2]}/#(#b)([^:]##:([^\\:]#(\\?[^\\:]#)#))*/$match[1]}; do
-          if (( ${git_options_static[(I)${opt%%:*}.*]} )); then
+        for opt in ${${${${(M)git_options:#(#i)${IPREFIX}[^.:]##:*}#(#i)${IPREFIX}}/#(#b)([^:]##:)([^\\:]#(\\?[^\\:]#)#:[^\\:]#(\\?[^\\:]#)#:->bool)/$match[1]whether or not to $match[2]}/#(#b)([^:]##:([^\\:]#(\\?[^\\:]#)#))*/$match[1]}; do
+          if (( ${git_options[(I)${opt%%:*}.*]} )); then
             sections_and_options+=$opt
           else
             options+=$opt
@@ -2534,6 +2572,8 @@ _git-config () {
         # following functions don't generate any output in the case of
         # multi-level options.
         case $IPREFIX in
+          # Note: If you add a branch to this 'case' statement,
+          # update $sections_that_permit_arbitrary_subsection_names.
           (alias.)
             __git_aliases && ret=0
             ;;
@@ -2590,6 +2630,10 @@ _git-config () {
             ;;
           (svn-remote.)
             __git_svn-remotes -S . && ret=0
+            ;;
+          (*.)
+            local -a existing_subsections=( ${${${(M)git_present_options:#${IPREFIX}*.*}#${IPREFIX}}%.*} )
+            _describe -t existing-subsections "existing subsections" existing_subsections -S . && ret=0
             ;;
         esac
       else
@@ -2653,6 +2697,13 @@ _git-config () {
           web:'web options'
           svn:'git svn options'
           svn-remote:'git svn remotes')
+        () {
+          local i
+          for i in ${(u)git_present_options%%.*}; do
+            (( ${+sections[(r)(#i)${(b)i}:*]} )) ||
+              sections+="${i}:unknown section name"
+          done
+        }
       fi
 
       # TODO: Add equivalent of -M 'r:|.=* r:|=*' here so that we can complete
@@ -2663,8 +2714,7 @@ _git-config () {
         options -M 'm:{[:lower:][:upper:]}={[:upper:][:lower:]}' && ret=0
       ;;
     (gettable-option)
-      _wanted git-options expl option compadd -M 'r:|.=* r:|=*' - \
-        ${${${(0)"$(_call_program gettable-options git config -z --list)"}%%$'\n'*}//:/\\:} && ret=0
+      _wanted git-options expl option compadd -M 'r:|.=* r:|=*' -a - git_present_options && ret=0
       ;;
     (gettable-colorbool-option)
       __git_config_sections -b '(|)' -a '(|)' '^color\.[^.]+$' gettable-colorbool-options option && ret=0
@@ -2702,13 +2752,13 @@ _git-config () {
       esac
       local z=$'\0'
 
-      # Set $parts to the $git_options_static element that corresponds to $line[1]
+      # Set $parts to the $git_options element that corresponds to $line[1]
       # (the option name whose value is currently being completed).  The elements
-      # of $parts are the colon-separated elements of the $git_options_static element.
+      # of $parts are the colon-separated elements of the $git_options element.
       declare -a parts
-      parts=("${(S@0)${git_options_static[(r)(#i)${line[1]}:*]}//(#b)(*[^\\]|):/$match[1]$z}")
+      parts=("${(S@0)${git_options[(r)(#i)${line[1]}:*]}//(#b)(*[^\\]|):/$match[1]$z}")
       if (( $#parts < 2 )) && [[ $line[1] == [^.]##.*.[^.]## ]]; then
-        parts=("${(S@0)${git_options_static[(r)(#i)${line[1]%%.*}.\*.${line[1]##*.}:*]}//(#b)(*[^\\]|):/$match[1]$z}")
+        parts=("${(S@0)${git_options[(r)(#i)${line[1]%%.*}.\*.${line[1]##*.}:*]}//(#b)(*[^\\]|):/$match[1]$z}")
       fi
 
       (( $#parts >= 4 )) || return ret
