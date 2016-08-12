@@ -13,4 +13,4 @@ install:
     - sudo apt-get install -qq libcap-dev libncurses5-dev texi2html texinfo
 
 script:
-  - csbuild --git-commit-range "$TRAVIS_COMMIT_RANGE" --build-cmd "git clean -dfqx && autoreconf && ./configure --quiet && make -s" --git-bisect --added-exit-code 7 -w1
+  - csbuild --git-commit-range "$TRAVIS_COMMIT_RANGE" --build-cmd "git clean -dfqx && autoreconf && ./configure --quiet && make -s" --git-bisect --added-exit-code 7 -w1 --print-fixed
