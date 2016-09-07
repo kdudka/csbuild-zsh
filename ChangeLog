@@ -1,3 +1,20 @@
+2016-09-07  Oliver Kiddle  <opk@zsh.org>
+
+	* unposted: Completion/Unix/Command/_rm: fix to use ;|
+	style fall-throughs in the case statement
+
+	* 39209: Matthew Martin: Completion/BSD/Command/_chflags:
+	Update options
+
+	* 39208: Matthew Martin: Completion/BSD/Command/_chflags:
+	Update flags
+
+	* 39223: Matthew Martin: Completion/BSD/Command/_chflags:
+	Introduce addflags function to reduce redundancy
+
+	* 39193: Completion/Unix/Type/_remote_files: don't pass options
+	from after -- on to compadd
+
 2016-09-07  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* 39185: Src/lex.c: wordbeg only set for ZLE if not alias.
