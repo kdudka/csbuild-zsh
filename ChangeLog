@@ -1,3 +1,44 @@
+2016-09-16  Daniel Shahaf  <d.s@daniel.shahaf.name>
+
+	* unposted: Completion/Unix/Command/_postfix: Correct quoting
+	in _call_program invocations.
+
+	* 39312 (tweaked): Completion/Unix/Command/_postfix: _postfix
+	(postconf): Complete only applicable parameters for -X and -#.
+
+	* 39310/0010: Src/Zle/compmatch.c: internals: match_str:
+	Simplify expression.
+
+	* 39310/0009: Src/Zle/compmatch.c: internals: match_str:
+	Downscope local variable 't'.
+
+	* 39310/0008: Src/Zle/compmatch.c: internals: match_str:
+	Document several local variables.
+
+	* 39310/0007: Src/Zle/compmatch.c: internals: match_str: Rename
+	and constify local variables 'oll', 'olw'.
+
+	* 39310/0006: Src/Zle/compmatch.c: internals: match_str:
+	Downscope local variable 'bpc'.
+
+	* 39310/0005: Src/Zle/compmatch.c: internals: match_str:
+	Constify some local variables.
+
+	* 39310/0004: Src/Zle/compmatch.c: internals: match_str: Document
+	'savl'.
+
+	* 39310/0003: Src/Zle/compmatch.c: internals: match_str: Document
+	'savw'. Avoid magic number.
+
+	* 39310/0002: Src/Zle/compmatch.c: internals: match_str:
+	Simplify by removing 'zoff'.
+
+	* 39310/0001: Src/Zle/compmatch.c: internals: match_str:
+	Document some local variables. See 39123.
+
+	* 39311: Completion/Unix/Command/_tmux: _tmux-capture-pane:
+	Tweak specifications of -S/-E and description strings.
+
 2016-09-15  Oliver Kiddle  <opk@zsh.org>
 
 	* 39333: Completion/Base/Utility/_call_program,
