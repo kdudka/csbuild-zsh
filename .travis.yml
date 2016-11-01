@@ -9,7 +9,7 @@ before_install:
     - sudo apt-get update -qq
 
 install:
-    - sudo apt-get install -qq -y --force-yes csbuild
+    - sudo apt-get install -y --force-yes csbuild
     - sudo apt-get install -qq libcap-dev libncurses5-dev texi2html texinfo
 
 script:
