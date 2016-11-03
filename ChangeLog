@@ -1,6 +1,36 @@
+2016-11-03  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* unposted: Src/Zle/zle_keymap.c: comment explaining putting
+	back tail end of key buffer into input.
+
+2016-11-03  Daniel Shahaf  <d.s@daniel.shahaf.name>
+
+	* 39806: Src/Zle/zle_vi.c: internal: Document zle's vichgbuf.
+
+	* 39805: Src/Zle/comp.h, Src/Zle/compcore.c: internal: Document
+	some compadd internals.
+
+	* 39804: Src/Zle/comp.h, Src/Zle/complete.c: internal: Document
+	matchspec flags.
+
+	* 39803: Src/Zle/complete.c: internal: Document bin_compadd().
+
+	* 39802: Src/Zle/compcore.c, Src/Zle/complete.c: internal:
+	Document and simplify multiquote().
+
+	* users/22063: Doc/Zsh/zle.yo: bracketed-paste: Document ability
+	to specify a vi register. (after users/22036)
+
 2016-11-03  Daniel Hahler  <zsh@thequod.de>
 	* 39822: Completion/Unix/Command/_git: remove "-A '-*'" with
 	_arguments for some commands.
+
+2016-11-03  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted: Completion/Unix/Type/_remote_files: fix typo that
+	was causing handling of "--" argument to fail
+
+	* 39820: Src/Zle/zle_vi.c: vi-repeat handles multi-key bindings
 
 2016-11-03  Peter Stephenson  <p.stephenson@samsung.com>
 
@@ -8,6 +38,9 @@
 	on parse error in $(...) inside a string.
 
 2016-11-02  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 39813: Src/Zle/zle_keymap.c: fix keybuflen after ungetting
+	extra keys from the end of keybuf in getkeymapcmd().
 
 	* 39811: Src/Zle/zle_vi.c: vi-repeat-change must not be the
 	"motion" of vi-change, lest it infinitely repeat itself.
