@@ -1,3 +1,16 @@
+2016-11-24  Oliver Kiddle  <opk@zsh.org>
+
+	* unposted: Completion/Unix/Command/_date: fix typo (=+ to +=)
+
+	* 40004 (tweaked): Completion/Redhat/Command/_yum: fix cache
+	mechanism, complete groups and other minor improvements
+
+	* unposted: Src/Zle/zle_params.c: fix to compile on Solaris where
+	curses.h has a #define for reg to register
+
+	* 40003: Src/Zle/zle_params.c, Doc/Zsh/zle.yo: include "0-"9
+	vi buffers in the registers associative array
+
 2016-11-24  Jun-ichi Takimoto <takimoto-j@kba.biglobe.ne.jp>
 
 	* 40005: Completion/Unix/Command/_date,
