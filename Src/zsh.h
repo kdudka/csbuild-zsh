@@ -1589,7 +1589,7 @@ struct zpc_disables_save {
     /*
      * Bit vector of ZPC_COUNT disabled characters.
      * We'll live dangerously and assumed ZPC_COUNT is no greater
-     * than the number of bits an an unsigned int.
+     * than the number of bits an unsigned int.
      */
     unsigned int disables;
 };
@@ -3131,7 +3131,9 @@ typedef wint_t convchar_t;
  * much what the definition tells us.  However, we happen to know this
  * works on MacOS which doesn't define that.
  */
-#if defined(BROKEN_WCWIDTH) && (defined(__STDC_ISO_10646__) || defined(__APPLE__))
+#ifdef ENABLE_UNICODE9
+#define WCWIDTH(wc)	mk_wcwidth(wc)
+#elif defined(BROKEN_WCWIDTH) && (defined(__STDC_ISO_10646__) || defined(__APPLE__))
 #define WCWIDTH(wc)	mk_wcwidth(wc)
 #else
 #define WCWIDTH(wc)	wcwidth(wc)
