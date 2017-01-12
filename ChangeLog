@@ -1,3 +1,11 @@
+2017-01-12  Peter Stephenson  <p.w.stephenson@ntlworld.com>
+
+	* unposted: Src/hashtable.c: one missing *name = NULL.
+
+	* 40342: Src/builtin.c, Src/exec.c, Src/hashtable.c,
+	Src/signals.c, Test/C04funcdef.ztst: add directory name cache
+	for directories recorded for autoload files.
+
 2017-01-12  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 40335: Src/builtin.c, Src/exec.c, Src/zsh.h,
