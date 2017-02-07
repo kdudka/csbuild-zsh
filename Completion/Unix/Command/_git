@@ -473,28 +473,25 @@ _git-checkout () {
       [[ $line[CURRENT] = -* ]] && return
       if (( CURRENT == 1 )) && [[ -z $opt_args[(I)--] ]]; then
         # TODO: Allow A...B
-        local branch_arg='' \
+        local \
               remote_branch_noprefix_arg='remote-branch-names-noprefix::__git_remote_branch_names_noprefix' \
               tree_ish_arg='tree-ishs::__git_tree_ishs' \
               file_arg='modified-files::__git_modified_files'
 
         if [[ -n ${opt_args[(I)-b|-B|--orphan|--detach]} ]]; then
-          remote_branch_noprefix_arg=
-          file_arg=
+          _alternative $tree_ish_arg && ret=0
         elif [[ -n $opt_args[(I)--track] ]]; then
-          branch_arg='remote-branches::__git_remote_branch_names'
-          remote_branch_noprefix_arg=
-          tree_ish_arg=
-          file_arg=
+          _alternative remote-branches::__git_remote_branch_names && ret=0
         elif [[ -n ${opt_args[(I)--ours|--theirs|-m|--conflict|--patch]} ]]; then
-          remote_branch_noprefix_arg=
+          _alternative $tree_ish_arg $file_arg && ret=0
+        else
+          _alternative \
+            $file_arg \
+            $tree_ish_arg \
+            $remote_branch_noprefix_arg \
+            && ret=0
         fi
 
-        _alternative \
-          $branch_arg \
-          $remote_branch_noprefix_arg \
-          $tree_ish_arg \
-          $file_arg && ret=0
       elif [[ -n ${opt_args[(I)-b|-B|-t|--track|--orphan|--detach]} ]]; then
         _nothing
       elif [[ -n $line[1] ]] && __git_is_treeish $line[1]; then
@@ -6484,9 +6481,10 @@ __git_references () {
     _git_refs_cache_pwd=$PWD
   fi
 
-  _wanted references expl 'reference' compadd -a - _git_refs_cache
+  _wanted references expl 'reference' compadd -M 'r:|/=**' -a - _git_refs_cache
 }
 
+# ### currently unused; are some callers of __git_references supposed to call this function?
 (( $+functions[__git_local_references] )) ||
 __git_local_references () {
   local expl
@@ -6497,7 +6495,7 @@ __git_local_references () {
     _git_local_refs_cache_pwd=$PWD
   fi
 
-  _wanted references expl 'reference' compadd -a - _git_local_refs_cache
+  _wanted references expl 'reference' compadd -M 'r:|/=**' -a - _git_local_refs_cache
 }
 
 (( $+functions[__git_remote_references] )) ||
