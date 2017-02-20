@@ -1,3 +1,23 @@
+2017-02-20  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* unposted: Test/ztst.zsh: use "diff -a" in case special characters
+	were written to the test output
+
+	* 40598: Src/subst.c: paramsubst() should always return scalar
+	when PREFORK_SINGLE was passed in from prefork()
+
+	* Martijn Dekker: 40565 (tweaked): test cases for assigning array
+	to scalar with various combinations of SHWORDSPLIT and IFS
+
+2017-02-19  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* 40593: Src/subst.c: SHWORDSPLIT + unset IFS should cause default
+	splitting of $@ and other array references with (@) or [@]
+
+	* 40576 (tweaked): Src/exec.c: entersubsh(): small improvement to
+	loop that resets trap handlers; unblock any signals that were
+	blocked for trap handling
+
 2017-02-19  Oliver Kiddle  <opk@zsh.org>
 
 	* 40569: Completion/Unix/Command/_gphoto2: update to gphoto2 2.5.11
