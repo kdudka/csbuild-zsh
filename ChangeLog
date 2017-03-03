@@ -1,3 +1,16 @@
+2017-03-03  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Sebastain: 40170: Src/Modules/curses.c: Fix up error number
+	resetting in curses module.  This appears to resolve an issue
+	mentioned in comments but attributed elsewhere, so remove
+	confusion here.
+
+	* 40173: Test/V11db_gdbm.ztst: don't report an error if gdbm
+	module doesn't load as this simply causes the test to be skipped.
+
+	* 40702: Doc/Zsh/zle.yo, Src/Zle/zle_params.c: add
+	KEYS_QUEUED_COUNT variable to ZLE parameters.
+
 2017-03-02  Jun-ichi Takimoto <takimoto-j@kba.biglobe.ne.jp>
 
 	* 40681: Src/Modules/datetime.c: strftime builtin should
