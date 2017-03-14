@@ -476,7 +476,7 @@ _git-checkout () {
         # TODO: Allow A...B
         local \
               remote_branch_noprefix_arg='remote-branch-names-noprefix::__git_remote_branch_names_noprefix' \
-              tree_ish_arg='tree-ishs::__git_tree_ishs' \
+              tree_ish_arg='tree-ishs::__git_commits_prefer_recent' \
               file_arg='modified-files::__git_modified_files'
 
         if [[ -n ${opt_args[(I)-b|-B|--orphan|--detach]} ]]; then
@@ -6126,12 +6126,13 @@ __git_recent_branches__names()
   # 2. Extracts the move-source from each
   # 3. Eliminates duplicates
   # 4. Eliminates commit hashes (leaving only ref names)
+  #    [This step is done again by the caller.]
   #
   # See workers/38592 for an equivalent long-hand implementation, and the rest
   # of that thread for why this implementation was chosen instead.
   #
   # Note: since we obtain the "from" part of the reflog, we only obtain heads, not tags.
-  reply=(${${(u)${${(0)"$(_call_program reflog git reflog -1000 -z --grep-reflog='\^checkout:\ moving\ from\ ' --pretty='%gs')"}#checkout: moving from }%% *}:#[[:xdigit:]](#c40)})
+  reply=(${${(u)${${(M)${(0)"$(_call_program reflog git reflog -1000 -z --pretty='%gs')"}:#(#s)checkout: moving from *}#checkout: moving from }%% *}:#[0-9a-f](#c40)})
 }
 
 (( $+functions[__git_recent_branches] )) ||
@@ -6168,6 +6169,10 @@ __git_recent_branches() {
   _describe -V -t recent-branches "recent branches" branches_colon_descriptions
 }
 
+(( $+functions[__git_commits_prefer_recent] )) ||
+__git_commits_prefer_recent () {
+  _alternative 'recent-branches::__git_recent_branches' 'commits::__git_commits'
+}
 
 (( $+functions[__git_commits] )) ||
 __git_commits () {
