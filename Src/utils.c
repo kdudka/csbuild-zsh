@@ -1230,13 +1230,13 @@ adduserdir(char *s, char *t, int flags, int always)
 	 * named directory, since these are sometimes used for
 	 * special purposes.
 	 */
-	nd->dir = ztrdup(t);
+	nd->dir = metafy(t, -1, META_DUP);
     } else
-	nd->dir = ztrduppfx(t, eptr - t);
+	nd->dir = metafy(t, eptr - t, META_DUP);
     /* The variables PWD and OLDPWD are not to be displayed as ~PWD etc. */
     if (!strcmp(s, "PWD") || !strcmp(s, "OLDPWD"))
 	nd->node.flags |= ND_NOABBREV;
-    nameddirtab->addnode(nameddirtab, ztrdup(s), nd);
+    nameddirtab->addnode(nameddirtab, metafy(s, -1, META_DUP), nd);
 }
 
 /* Get a named directory: this function can cause a directory name *
@@ -2376,7 +2376,7 @@ zstrtol_underscore(const char *s, char **t, int base, int underscore)
     while (inblank(*s))
 	s++;
 
-    if ((neg = (*s == '-')))
+    if ((neg = IS_DASH(*s)))
 	s++;
     else if (*s == '+')
 	s++;
@@ -4788,6 +4788,41 @@ unmeta(const char *file_name)
 }
 
 /*
+ * Unmetafy just one character and store the number of bytes it occupied.
+ */
+/**/
+mod_export convchar_t
+unmeta_one(const char *in, int *sz)
+{
+    convchar_t wc;
+    int newsz;
+#ifdef MULTIBYTE_SUPPORT
+    mbstate_t wstate;
+#endif
+
+    if (!sz)
+	sz = &newsz;
+    *sz = 0;
+
+    if (!in || !*in)
+	return 0;
+
+#ifdef MULTIBYTE_SUPPORT
+    memset(&wstate, 0, sizeof(wstate));
+    *sz = mb_metacharlenconv_r(in, &wc, &wstate);
+#else
+    if (in[0] == Meta) {
+      *sz = 2;
+      wc = STOUC(in[1] ^ 32);
+    } else {
+      *sz = 1;
+      wc = STOUC(in[0]);
+    }
+#endif
+    return wc;
+}
+
+/*
  * Unmetafy and compare two strings, comparing unsigned character values.
  * "a\0" sorts after "a".
  *
@@ -6118,7 +6153,9 @@ quotedzputs(char const *s, FILE *stream)
 	} else
 	    *ptr++ = '\'';
 	while(*s) {
-	    if (*s == Meta)
+	    if (*s == Dash)
+		c = '-';
+	    else if (*s == Meta)
 		c = *++s ^ 32;
 	    else
 		c = *s;
@@ -6155,7 +6192,9 @@ quotedzputs(char const *s, FILE *stream)
     } else {
 	/* use Bourne-style quoting, avoiding empty quoted strings */
 	while (*s) {
-	    if (*s == Meta)
+	    if (*s == Dash)
+		c = '-';
+	    else if (*s == Meta)
 		c = *++s ^ 32;
 	    else
 		c = *s;

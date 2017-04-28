@@ -72,7 +72,7 @@ static struct builtin builtins[] =
     BUILTIN("fc", 0, bin_fc, 0, -1, BIN_FC, "aAdDe:EfiIlLmnpPrRt:W", NULL),
     BUILTIN("fg", 0, bin_fg, 0, -1, BIN_FG, NULL, NULL),
     BUILTIN("float", BINF_PLUSOPTS | BINF_MAGICEQUALS | BINF_PSPECIAL | BINF_ASSIGN, (HandlerFunc)bin_typeset, 0, -1, 0, "E:%F:%HL:%R:%Z:%ghlprtux", "E"),
-    BUILTIN("functions", BINF_PLUSOPTS, bin_functions, 0, -1, 0, "kmMtTuUWx:z", NULL),
+    BUILTIN("functions", BINF_PLUSOPTS, bin_functions, 0, -1, 0, "kmMstTuUWx:z", NULL),
     BUILTIN("getln", 0, bin_read, 0, -1, 0, "ecnAlE", "zr"),
     BUILTIN("getopts", 0, bin_getopts, 2, -1, 0, NULL, NULL),
     BUILTIN("hash", BINF_MAGICEQUALS, bin_hash, 0, -1, 0, "Ldfmrv", NULL),
@@ -2993,7 +2993,7 @@ listusermathfunc(MathFunc p)
     else
 	showargs = 0;
 
-    printf("functions -M %s", p->name);
+    printf("functions -M%s %s", (p->flags & MFF_STR) ? "s" : "", p->name);
     if (showargs) {
 	printf(" %d", p->minargs);
 	showargs--;
@@ -3220,10 +3220,17 @@ bin_functions(char *name, char **argv, Options ops, int func)
 	    }
 	} else {
 	    /* Add a function */
-	    int minargs = 0, maxargs = -1;
+	    int minargs, maxargs;
 	    char *funcname = *argv++;
 	    char *modname = NULL;
 	    char *ptr;
+
+	    if (OPT_ISSET(ops,'s')) {
+		minargs = maxargs = 1;
+	    } else {
+		minargs = 0;
+		maxargs = -1;
+	    }
 
 	    ptr = itype_end(funcname, IIDENT, 0);
 	    if (idigit(*funcname) || funcname == ptr || *ptr) {
@@ -3236,6 +3243,10 @@ bin_functions(char *name, char **argv, Options ops, int func)
 		if (minargs < 0 || *ptr) {
 		    zwarnnam(name, "-M: invalid min number of arguments: %s",
 			     *argv);
+		    return 1;
+		}
+		if (OPT_ISSET(ops,'s') && minargs != 1) {
+		    zwarnnam(name, "-Ms: must take a single string argument");
 		    return 1;
 		}
 		maxargs = minargs;
@@ -3251,6 +3262,10 @@ bin_functions(char *name, char **argv, Options ops, int func)
 			     *argv);
 		    return 1;
 		}
+		if (OPT_ISSET(ops,'s') && maxargs != 1) {
+		    zwarnnam(name, "-Ms: must take a single string argument");
+		    return 1;
+		}
 		argv++;
 	    }
 	    if (*argv)
@@ -3263,6 +3278,8 @@ bin_functions(char *name, char **argv, Options ops, int func)
 	    p = (MathFunc)zshcalloc(sizeof(struct mathfunc));
 	    p->name = ztrdup(funcname);
 	    p->flags = MFF_USERFUNC;
+	    if (OPT_ISSET(ops,'s'))
+		p->flags |= MFF_STR;
 	    p->module = modname ? ztrdup(modname) : NULL;
 	    p->minargs = minargs;
 	    p->maxargs = maxargs;
@@ -5483,7 +5500,7 @@ bin_break(char *name, char **argv, UNUSED(Options ops), int func)
 	}
 	/*FALLTHROUGH*/
     case BIN_EXIT:
-	if (locallevel > forklevel) {
+	if (locallevel > forklevel && shell_exiting != -1) {
 	    /*
 	     * We don't exit directly from functions to allow tidying
 	     * up, in particular EXIT traps.  We still need to perform
@@ -5492,6 +5509,9 @@ bin_break(char *name, char **argv, UNUSED(Options ops), int func)
 	     *
 	     * If we are forked, we exit the shell at the function depth
 	     * at which we became a subshell, hence the comparison.
+	     *
+	     * If we are already exiting... give this all up as
+	     * a bad job.
 	     */
 	    if (stopmsg || (zexit(0,2), !stopmsg)) {
 		retflag = 1;
@@ -5538,6 +5558,14 @@ checkjobs(void)
     }
 }
 
+/*
+ * -1 if the shell is already committed to exit.
+ * positive if zexit() was already called.
+ */
+
+/**/
+int shell_exiting;
+
 /* exit the shell.  val is the return value of the shell.  *
  * from_where is
  *   1   if zexit is called because of a signal
@@ -5549,10 +5577,8 @@ checkjobs(void)
 mod_export void
 zexit(int val, int from_where)
 {
-    static int in_exit;
-
     /* Don't do anything recursively:  see below */
-    if (in_exit == -1)
+    if (shell_exiting == -1)
 	return;
 
     if (isset(MONITOR) && !stopmsg && from_where != 1) {
@@ -5565,14 +5591,14 @@ zexit(int val, int from_where)
 	}
     }
     /* Positive in_exit means we have been here before */
-    if (from_where == 2 || (in_exit++ && from_where))
+    if (from_where == 2 || (shell_exiting++ && from_where))
 	return;
 
     /*
-     * We're now committed to exiting.  Set in_exit to -1 to
+     * We're now committed to exiting.  Set shell_exiting to -1 to
      * indicate we shouldn't do any recursive processing.
      */
-    in_exit = -1;
+    shell_exiting = -1;
     /*
      * We want to do all remaining processing regardless of preceding
      * errors, even user interrupts.

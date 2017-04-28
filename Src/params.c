@@ -128,6 +128,11 @@ struct timeval shtimer;
 /**/
 mod_export int termflags;
 
+/* Forward declaration */
+
+static void
+rprompt_indent_unsetfn(Param pm, int exp);
+
 /* Standard methods for get/set/unset pointers in parameters */
 
 /**/
@@ -241,6 +246,9 @@ static const struct gsu_integer argc_gsu =
 static const struct gsu_array pipestatus_gsu =
 { pipestatgetfn, pipestatsetfn, stdunsetfn };
 
+static const struct gsu_integer rprompt_indent_gsu =
+{ intvargetfn, zlevarsetfn, rprompt_indent_unsetfn };
+
 /* Nodes for special parameters for parameter hash table */
 
 #ifdef HAVE_UNION_INIT
@@ -327,7 +335,7 @@ IPDEF4("ZSH_SUBSHELL", &zsh_subshell),
 #define IPDEF5U(A,B,F) {{NULL,A,PM_INTEGER|PM_SPECIAL|PM_UNSET},BR((void *)B),GSU(F),10,0,NULL,NULL,NULL,0}
 IPDEF5("COLUMNS", &zterm_columns, zlevar_gsu),
 IPDEF5("LINES", &zterm_lines, zlevar_gsu),
-IPDEF5U("ZLE_RPROMPT_INDENT", &rprompt_indent, zlevar_gsu),
+IPDEF5U("ZLE_RPROMPT_INDENT", &rprompt_indent, rprompt_indent_gsu),
 IPDEF5("SHLVL", &shlvl, varinteger_gsu),
 
 /* Don't import internal integer status variables. */
@@ -353,6 +361,17 @@ IPDEF7("PS3", &prompt3),
 IPDEF7R("PS4", &prompt4),
 IPDEF7("SPROMPT", &sprompt),
 
+#define IPDEF9F(A,B,C,D) {{NULL,A,D|PM_ARRAY|PM_SPECIAL|PM_DONTIMPORT},BR((void *)B),GSU(vararray_gsu),0,0,NULL,C,NULL,0}
+#define IPDEF9(A,B,C) IPDEF9F(A,B,C,0)
+IPDEF9F("*", &pparams, NULL, PM_ARRAY|PM_SPECIAL|PM_DONTIMPORT|PM_READONLY),
+IPDEF9F("@", &pparams, NULL, PM_ARRAY|PM_SPECIAL|PM_DONTIMPORT|PM_READONLY),
+
+/*
+ * This empty row indicates the end of parameters available in
+ * all emulations.
+ */
+{{NULL,NULL,0},BR(NULL),NULL_GSU,0,0,NULL,NULL,NULL,0},
+
 #define IPDEF8(A,B,C,D) {{NULL,A,D|PM_SCALAR|PM_SPECIAL},BR((void *)B),GSU(colonarr_gsu),0,0,NULL,C,NULL,0}
 IPDEF8("CDPATH", &cdpath, "cdpath", 0),
 IPDEF8("FIGNORE", &fignore, "fignore", 0),
@@ -365,17 +384,6 @@ IPDEF8("ZSH_EVAL_CONTEXT", &zsh_eval_context, "zsh_eval_context", PM_READONLY),
 
 /* MODULE_PATH is not imported for security reasons */
 IPDEF8("MODULE_PATH", &module_path, "module_path", PM_DONTIMPORT|PM_RESTRICTED),
-
-#define IPDEF9F(A,B,C,D) {{NULL,A,D|PM_ARRAY|PM_SPECIAL|PM_DONTIMPORT},BR((void *)B),GSU(vararray_gsu),0,0,NULL,C,NULL,0}
-#define IPDEF9(A,B,C) IPDEF9F(A,B,C,0)
-IPDEF9F("*", &pparams, NULL, PM_ARRAY|PM_SPECIAL|PM_DONTIMPORT|PM_READONLY),
-IPDEF9F("@", &pparams, NULL, PM_ARRAY|PM_SPECIAL|PM_DONTIMPORT|PM_READONLY),
-
-/*
- * This empty row indicates the end of parameters available in
- * all emulations.
- */
-{{NULL,NULL,0},BR(NULL),NULL_GSU,0,0,NULL,NULL,NULL,0},
 
 #define IPDEF10(A,B) {{NULL,A,PM_ARRAY|PM_SPECIAL},BR(NULL),GSU(B),10,0,NULL,NULL,NULL,0}
 
@@ -411,6 +419,26 @@ IPDEF9F("path", &path, "PATH", PM_RESTRICTED),
 /* These are known to zsh alone. */
 
 IPDEF10("pipestatus", pipestatus_gsu),
+
+{{NULL,NULL,0},BR(NULL),NULL_GSU,0,0,NULL,NULL,NULL,0},
+};
+
+/*
+ * Alternative versions of colon-separated path parameters for
+ * sh emulation.  These don't link to the array versions.
+ */
+static initparam special_params_sh[] = {
+IPDEF8("CDPATH", &cdpath, NULL, 0),
+IPDEF8("FIGNORE", &fignore, NULL, 0),
+IPDEF8("FPATH", &fpath, NULL, 0),
+IPDEF8("MAILPATH", &mailpath, NULL, 0),
+IPDEF8("WATCH", &watch, NULL, 0),
+IPDEF8("PATH", &path, NULL, PM_RESTRICTED),
+IPDEF8("PSVAR", &psvar, NULL, 0),
+IPDEF8("ZSH_EVAL_CONTEXT", &zsh_eval_context, NULL, PM_READONLY),
+
+/* MODULE_PATH is not imported for security reasons */
+IPDEF8("MODULE_PATH", &module_path, NULL, PM_DONTIMPORT|PM_RESTRICTED),
 
 {{NULL,NULL,0},BR(NULL),NULL_GSU,0,0,NULL,NULL,NULL,0},
 };
@@ -745,9 +773,13 @@ createparamtable(void)
     /* Add the special parameters to the hash table */
     for (ip = special_params; ip->node.nam; ip++)
 	paramtab->addnode(paramtab, ztrdup(ip->node.nam), ip);
-    if (!EMULATION(EMULATE_SH|EMULATE_KSH))
+    if (EMULATION(EMULATE_SH|EMULATE_KSH)) {
+	for (ip = special_params_sh; ip->node.nam; ip++)
+	    paramtab->addnode(paramtab, ztrdup(ip->node.nam), ip);
+    } else {
 	while ((++ip)->node.nam)
 	    paramtab->addnode(paramtab, ztrdup(ip->node.nam), ip);
+    }
 
     argvparam = (Param) &argvparam_pm;
 
@@ -1175,7 +1207,7 @@ getarg(char **str, int *inv, Value v, int a2, zlong *w,
        int *prevcharlen, int *nextcharlen)
 {
     int hasbeg = 0, word = 0, rev = 0, ind = 0, down = 0, l, i, ishash;
-    int keymatch = 0, needtok = 0, arglen, len;
+    int keymatch = 0, needtok = 0, arglen, len, inpar = 0;
     char *s = *str, *sep = NULL, *t, sav, *d, **ta, **p, *tt, c;
     zlong num = 1, beg = 0, r = 0, quote_arg = 0;
     Patprog pprog = NULL;
@@ -1314,8 +1346,9 @@ getarg(char **str, int *inv, Value v, int a2, zlong *w,
     }
 
     for (t = s, i = 0;
-	 (c = *t) && ((c != Outbrack &&
-		       (ishash || c != ',')) || i); t++) {
+	 (c = *t) &&
+	     ((c != Outbrack && (ishash || c != ',')) || i || inpar);
+	 t++) {
 	/* Untokenize inull() except before brackets and double-quotes */
 	if (inull(c)) {
 	    c = t[1];
@@ -1336,6 +1369,10 @@ getarg(char **str, int *inv, Value v, int a2, zlong *w,
 	    i++;
 	else if (c == ']' || c == Outbrack)
 	    i--;
+	if (c == '(' || c == Inpar)
+	    inpar++;
+	else if (c == ')' || c == Outpar)
+	    inpar--;
 	if (ispecial(c))
 	    needtok = 1;
     }
@@ -1979,7 +2016,9 @@ fetchvalue(Value v, char **pptr, int bracks, int flags)
 	*s++ = '$';
     else if (c == Star)
 	*s++ = '*';
-    else if (c == '#' || c == '-' || c == '?' || c == '$' ||
+    else if (IS_DASH(c))
+	*s++ = '-';
+    else if (c == '#' || c == '?' || c == '$' ||
 	     c == '!' || c == '@' || c == '*')
 	s++;
     else
@@ -2723,24 +2762,57 @@ setarrvalue(Value v, char **val)
 		*p++ = *r++;
 	    }
 	} else {
-	    p = new = (char **) zalloc(sizeof(char *)
-				       * (post_assignment_length + 1));
+            /* arr+=( ... )
+             * arr[${#arr}+x,...]=( ... ) */
+            if (post_assignment_length > pre_assignment_length &&
+                    pre_assignment_length <= v->start &&
+                    pre_assignment_length > 0 &&
+                    v->pm->gsu.a->setfn == arrsetfn)
+            {
+                p = new = (char **) zrealloc(old, sizeof(char *)
+                                           * (post_assignment_length + 1));
 
-	    for (i = 0; i < v->start; i++)
-		*p++ = i < pre_assignment_length ? ztrdup(*q++) : ztrdup("");
-	    for (r = val; *r;) {
-		/* Give away ownership of the string */
-		*p++ = *r++;
-	    }
-	    if (v->end < pre_assignment_length)
-		for (q = old + v->end; *q;)
-		    *p++ = ztrdup(*q++);
-	    *p = NULL;
+                p += pre_assignment_length; /* after old elements */
+
+                /* Consider 1 < 0, case for a=( 1 ); a[1,..] =
+                 *          1 < 1, case for a=( 1 ); a[2,..] = */
+                if (pre_assignment_length < v->start) {
+                    for (i = pre_assignment_length; i < v->start; i++) {
+                        *p++ = ztrdup("");
+                    }
+                }
+
+                for (r = val; *r;) {
+                    /* Give away ownership of the string */
+                    *p++ = *r++;
+                }
+
+                /* v->end doesn't matter:
+                 * a=( 1 2 ); a[4,100]=( a b ); echo "${(q@)a}"
+                 * 1 2 '' a b */
+                *p = NULL;
+
+                v->pm->u.arr = NULL;
+                v->pm->gsu.a->setfn(v->pm, new);
+            } else {
+                p = new = (char **) zalloc(sizeof(char *)
+                                           * (post_assignment_length + 1));
+                for (i = 0; i < v->start; i++)
+                    *p++ = i < pre_assignment_length ? ztrdup(*q++) : ztrdup("");
+                for (r = val; *r;) {
+                    /* Give away ownership of the string */
+                    *p++ = *r++;
+                }
+                if (v->end < pre_assignment_length)
+                    for (q = old + v->end; *q;)
+                        *p++ = ztrdup(*q++);
+                *p = NULL;
+
+                v->pm->gsu.a->setfn(v->pm, new);
+            }
 
 	    DPUTS2(p - new != post_assignment_length, "setarrvalue: wrong allocation: %d 1= %lu",
 		   post_assignment_length, (unsigned long)(p - new));
-
-	    v->pm->gsu.a->setfn(v->pm, new);
 	}
 
         /* Ownership of all strings has been
@@ -3700,6 +3772,16 @@ zlevarsetfn(Param pm, zlong x)
 	adjustwinsize(2 + (p == &zterm_columns));
 }
 
+
+/* Implements gsu_integer.unsetfn for ZLE_RPROMPT_INDENT; see stdunsetfn() */
+
+static void
+rprompt_indent_unsetfn(Param pm, int exp)
+{
+    stdunsetfn(pm, exp);
+    rprompt_indent = 1; /* Keep this in sync with init_term() */
+}
+
 /* Function to set value of generic special scalar    *
  * parameter.  data is pointer to a character pointer *
  * representing the scalar (string).                  */
@@ -3799,8 +3881,7 @@ colonarrsetfn(Param pm, char *x)
 	*dptr = colonsplit(x, pm->node.flags & PM_UNIQUE);
     else
 	*dptr = mkarray(NULL);
-    if (pm->ename)
-	arrfixenv(pm->node.nam, *dptr);
+    arrfixenv(pm->node.nam, *dptr);
     zsfree(x);
 }
 
