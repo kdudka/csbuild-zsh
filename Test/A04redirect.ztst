@@ -165,6 +165,15 @@
 ?About to close a second time
 *?\(eval\):*: failed to close file descriptor *
 
+  eval $'fn-varid() { print {\x18}<<0 }'
+  { which -x2 fn-varid; fn-varid } | tr $'\x18' '?'
+0:Regression test for off-by-one in varid check
+>fn-varid () {
+>  print {?} <<0
+>0
+>}
+>{?}
+
   print foo >&-
 0:'>&-' redirection
 
@@ -474,6 +483,18 @@
 0:anonymous function redirections are applied immediately
 >Nothing output yet
 >I just read any old rubbish
+
+  print you cannot be serious >input1
+  () {
+    local var
+    read var
+    print $1 $var $2
+  } <input1 Shirley >output1 dude
+  print Nothing output yet
+  cat output1
+0:anonymous function redirections mixed with argument
+>Nothing output yet
+>Shirley you cannot be serious dude
 
   redirfn() {
     local var
