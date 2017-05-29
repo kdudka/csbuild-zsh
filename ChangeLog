@@ -1,3 +1,17 @@
+2017-05-28  Barton E. Schaefer  <schaefer@zsh.org>
+
+	* Sebastian: 41153: Src/Modules/db_gdbm.c: finish module setup
+	only after all error conditions have been checked
+
+	* Sebastian: 41151: Src/Modules/db_gdbm.c: propagate flags when
+	creating new parameter
+
+	* unposted: Doc/Zsh/mod_complist.yo: clarify ZLS_COLORS pattern
+	matching contexts
+
+	* 41159 (tweaked): Completion/Unix/Command/_ssh: handle "Include"
+	and "HostName" lines in ~/.ssh/config
+
 2017-05-24  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* Sebastian: 41146: Src/Modules/db_gdbm.c: be more careful about
