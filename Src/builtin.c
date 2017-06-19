@@ -131,7 +131,7 @@ static struct builtin builtins[] =
     BUILTIN("whence", 0, bin_whence, 0, -1, 0, "acmpvfsSwx:", NULL),
     BUILTIN("where", 0, bin_whence, 0, -1, 0, "pmsSwx:", "ca"),
     BUILTIN("which", 0, bin_whence, 0, -1, 0, "ampsSwx:", "c"),
-    BUILTIN("zmodload", 0, bin_zmodload, 0, -1, 0, "AFRILP:abcfdilmpue", NULL),
+    BUILTIN("zmodload", 0, bin_zmodload, 0, -1, 0, "AFRILP:abcfdilmpsue", NULL),
     BUILTIN("zcompile", 0, bin_zcompile, 0, -1, 0, "tUMRcmzka", NULL),
 };
 
@@ -880,8 +880,13 @@ cd_get_dest(char *nam, char **argv, int hard, int func)
 	    dir = nextnode(firstnode(dirstack));
 	if (dir)
 	    zinsertlinknode(dirstack, dir, getlinknode(dirstack));
-	else if (func != BIN_POPD)
+	else if (func != BIN_POPD) {
+	    if (!home) {
+		zwarnnam(nam, "HOME not set");
+		return NULL;
+	    }
 	    zpushnode(dirstack, ztrdup(home));
+	}
     } else if (!argv[1]) {
 	int dd;
 	char *end;
@@ -935,6 +940,10 @@ cd_get_dest(char *nam, char **argv, int hard, int func)
     }
     if (!dir) {
 	dir = firstnode(dirstack);
+    }
+    if (!dir || !getdata(dir)) {
+	DPUTS(1, "Directory not set, not detected early enough");
+	return NULL;
     }
     if (!(dest = cd_do_chdir(nam, getdata(dir), hard))) {
 	if (!target)
