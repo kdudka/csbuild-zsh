@@ -394,9 +394,12 @@ ecdel(int p)
 static wordcode
 ecstrcode(char *s)
 {
-    int l, t = has_token(s);
+    int l, t;
+
+    unsigned val = hasher(s);
 
     if ((l = strlen(s) + 1) && l <= 4) {
+	t = has_token(s);
 	wordcode c = (t ? 3 : 2);
 	switch (l) {
 	case 4: c |= ((wordcode) STOUC(s[2])) << 19;
@@ -410,16 +413,21 @@ ecstrcode(char *s)
 	int cmp;
 
 	for (pp = &ecstrs; (p = *pp); ) {
-	    if (!(cmp = p->nfunc - ecnfunc) && !(cmp = strcmp(p->str, s)))
+	    if (!(cmp = p->nfunc - ecnfunc) && !(cmp = (((signed)p->hashval) - ((signed)val))) && !(cmp = strcmp(p->str, s))) {
 		return p->offs;
+            }
 	    pp = (cmp < 0 ? &(p->left) : &(p->right));
 	}
+
+        t = has_token(s);
+
 	p = *pp = (Eccstr) zhalloc(sizeof(*p));
 	p->left = p->right = 0;
 	p->offs = ((ecsoffs - ecssub) << 2) | (t ? 1 : 0);
 	p->aoffs = ecsoffs;
 	p->str = s;
 	p->nfunc = ecnfunc;
+        p->hashval = val;
 	ecsoffs += l;
 
 	return p->offs;
