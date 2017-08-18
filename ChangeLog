@@ -1,3 +1,16 @@
+2017-08-18  Oliver Kiddle  <opk@zsh.org>
+
+	* 41563: Completion/Base/Utility/_regex_words: fix completion
+	description alignment with _regex_words
+
+	* 41562: Completion/BSD/Command/_rcctl: correct completed word
+
+	* 41561: Completion/Unix/Command/_dhclient: handle Free/OpenBSD
+	and bring options up-to-date for the ISC implementation
+
+	* 41560: Completion/Unix/Command/_chsh: cleanup chsh completion
+	for different platforms
+
 2017-08-16  Oliver Kiddle  <opk@zsh.org>
 
 	* Tomasz Pala: users/22834: Completion/Linux/Command/_modutils:
