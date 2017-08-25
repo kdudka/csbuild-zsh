@@ -1,3 +1,15 @@
+2017-08-25  Oliver Kiddle  <opk@zsh.org>
+
+	* 41601: Completion/Unix/Command/_arp,
+	Completion/Unix/Command/_route: handle system differences
+	in arp completion and add function for route
+
+	* 41600: Completion/Unix/Command/_mpc: fix quoting of
+	songs for completion and avoid sending errors to stderr
+
+	* 41598: Completion/Unix/Command/_w,
+	Completion/Unix/Command/_who: new who and w completions
+
 2017-08-24  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* 41590 (modified as per 41595): README, Doc/Zsh/options.yo,
