@@ -1,8 +1,19 @@
+2017-09-13  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* 41688: Src/jobs.c: "wait" for all active jobs should ignore
+	those marked STAT_NOPRINT.
+
+	* 41679: Doc/Zsh/builtins.yo: slight clarifcation on exec of
+	builtins.
+
 2017-09-11  Daniel Shahaf  <d.s@daniel.shahaf.name>
 
 	* unposted: Src/utils.c: internal: Document zreaddir().
 
 2017-09-11  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* unposted: Doc/Zsh/invoke.yo: YODL compatibility fix for
+	--emulate.
 
 	* Thierry Ghelew: 41666: Src/Modules/zpty.c: zpty compatibility
 	for OpenBSD.
