@@ -1,3 +1,25 @@
+2017-09-18  Oliver Kiddle  <opk@zsh.org>
+
+	* 41720: Completion/Linux/Command/_chrt,
+	Completion/Linux/Command/_ionice,
+	Completion/Linux/Command/_losetup,
+	Completion/Linux/Command/_wipefs: update completion of options
+	for util-linux 2.30.1
+
+	* 41725: Completion/BSD/Command/_sysrc,
+	Completion/Linux/Command/_mii-tool,
+	Completion/Redhat/Command/_scl, Completion/Unix/Command/_env,
+	Completion/Unix/Command/_dhclient,
+	Completion/Unix/Command/_getfacl, Completion/Unix/Command/_gpg,
+	Completion/Unix/Command/_ls, Completion/Unix/Command/_screen,
+	Completion/Unix/Command/_setfacl,
+	Completion/Unix/Command/_strip, Completion/Unix/Command/_truss,
+	Completion/Unix/Command/_vim, Completion/Unix/Command/_wget:
+	assorted minor updates to completion functions
+
+	* 41724: Completion/Linux/Command/_ethtool: update
+	completion for new options
+
 2017-09-15  Oliver Kiddle  <opk@zsh.org>
 
 	* 41711: Completion/Unix/Command/_dconf: new dconf completion
