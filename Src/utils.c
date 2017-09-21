@@ -2709,6 +2709,9 @@ checkrmall(char *s)
     const int max_count = 100;
     if ((rmd = opendir(unmeta(s)))) {
 	int ignoredots = !isset(GLOBDOTS);
+	/* ### TODO: Passing ignoredots here is wrong.  See workers/41672
+	   aka <https://bugs.debian.org/875460>.
+	 */
 	while (zreaddir(rmd, ignoredots)) {
 	    count++;
 	    if (count > max_count)
@@ -2724,8 +2727,10 @@ checkrmall(char *s)
     else if (count > 0)
 	fprintf(shout, "zsh: sure you want to delete all %d files in ",
 		count);
-    else
+    else {
+	/* We don't know how many files the glob will expand to; see 41707. */
 	fprintf(shout, "zsh: sure you want to delete all the files in ");
+    }
     nicezputs(s, shout);
     if(isset(RMSTARWAIT)) {
 	fputs("? (waiting ten seconds)", shout);
