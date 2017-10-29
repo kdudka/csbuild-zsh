@@ -1,3 +1,15 @@
+2017-10-29  Oliver Kiddle  <opk@zsh.org>
+
+	* Sebastian: 41960: Completion/Zsh/Command/_zstyle,
+	Completion/Zsh/Type/_globquals: declare MATCH, MBEGIN, MEND local
+
+	* 41961: Completion/Unix/Command/_ansible: new ansible completion
+
+	* 41958: Completion/Linux/Command/_losetup,
+	Completion/Linux/Command/_lsblk, Completion/Linux/Command/_wipefs,
+	Completion/Unix/Command/_hexdump, Completion/Unix/Command/_last:
+	update util-linux completions to 2.31; new hexdump completion
+
 2017-10-28  Oliver Kiddle  <opk@zsh.org>
 
 	* 41957: Completion/Unix/Command/_git: update for git 2.14.3
