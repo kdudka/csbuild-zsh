@@ -1,6 +1,19 @@
 2017-12-22  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
-	* 33395: Src/exec.c, Src/zsh.h: improved line numbering for
+	* dana: 42156 with tweak as per 42158: Doc/Zsh/options.yo,
+	Src/builtin.c, Src/options.c, Src/utils.c, Src/zsh.h,
+	Test/W02jobs.ztst: add CHECK_RUNNING_JOBS opion and job tests;
+	remove debug error when rows or columns are zero as this is
+	normal without a physical terminal.
+
+	* dana: 42156: Doc/Zsh/options.yo, Src/builtin.c,
+	Src/options.c, Src/zsh.h, Test/W02jobs.ztst: new
+	CHECK_RUNNING_JOBS option demanded by bash groupies.
+
+	* danda: 42155: Completion/Unix/Command/_ssh: various
+	improvements for OpenSSH.
+
+	* 42152: Src/exec.c, Src/zsh.h: improved line numbering for
 	functions (in particular anonymous functions) defined inside
 	others, also flag for anonymous functions.
 
