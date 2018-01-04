@@ -1,5 +1,17 @@
 2018-01-03  Oliver Kiddle  <okiddle@yahoo.co.uk>
 
+	* dana: 42210: Completion/BSD/Command/_chflags,
+	Completion/BSD/Type/_flags, Completion/Unix/Command/_chmod,
+	Completion/Unix/Command/_find, Completion/Unix/Command/_mkdir,
+	Completion/Unix/Type/_modes: factor out completion of file
+	modes and flags and handle _comp_priv_prefix for chflags
+
+	* dana: 42209: Completion/Unix/Command/_unexpand: take account
+	of numeric options such as -4 instead of -t4
+
+	* dana: 42209: Completion/Unix/Command/_tr: fix option
+	descriptions for non-GNU variants
+
 	* 42208: Completion/Unix/Command/_yp: fix use of cache variables
 
 	* dana: 42207: Completion/Unix/Command/_chown,
