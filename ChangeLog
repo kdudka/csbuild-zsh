@@ -1,3 +1,11 @@
+2018-02-07  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* wgh@torlan.ru: 42336: Completion/Unix/Command/_adb: force
+	single column output when getting filenames with adb ls command
+
+	* 42343: Completion/Unix/Command/_subversion: complete
+	--config-option more than once
+
 2018-01-31  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 42332: Src/builtin.c, Src/utils.c: special case printf for
