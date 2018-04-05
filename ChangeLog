@@ -1,3 +1,17 @@
+2018-04-05  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 42584: Completion/Unix/Command/_ssh: complete options for
+	ssh-keyscan and update options for ssh-copy-id
+
+	* 42583: Completion/Unix/Command/_column: new column completion
+
+	* 42582: Completion/BSD/Command/_cu, Completion/Unix/Command/_uniq,
+	Completion/Unix/Command/_dhclient, Completion/Unix/Command/_script:
+	updates to options in completions for OpenBSD 6.3
+
+	* 42575: Src/Zle/computil.c, Test/Y03arguments.ztst: fix to not
+	complete options in the argument to another option
+
 2018-04-05  Jun-ichi Takimoto <takimoto-j@kba.biglobe.ne.jp>
 
 	* 42577: Completion/Unix/Command/_strings: fix macOS support
