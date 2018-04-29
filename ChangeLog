@@ -1,6 +1,20 @@
+2018-04-29  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* Matthew Martin: 42730: Completion/Unix/Command/_rmdir,
+	Completion/Unix/Type/_directories: Complete the options for rmdir
+
+	* Matthew Martin: 42729: Completion/Unix/Command/_df:
+	update df completion for [DFNO]BSD
+
+	* 42676: Completion/Unix/Command/_dd: deal with system
+	specific arguments
+
+	* 42728: Completion/Unix/Command/_tiff: update options and
+	add handling for tiff2pdf
+
 2018-04-29  Barton E. Schaefer  <schaefer@zsh.org>
 
-	* Ricardo Giorni: 47201: fix 42355 for multiple backslashes
+	* Ricardo Giorni: 42701: fix 42355 for multiple backslashes
 
 2018-04-26  Peter Stephenson  <p.stephenson@samsung.com>
 
