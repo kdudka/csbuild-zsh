@@ -578,6 +578,36 @@ int outputradix;
 /**/
 int outputunderscore;
 
+#ifndef HAVE_ISINF
+/**/
+int
+isinf(double x)
+{
+    if ((-1.0 < x) && (x < 1.0))       /* x is small, and thus finite */
+       return (0);
+    else if ((x + x) == x)             /* only true if x == Infinity */
+       return (1);
+    else                               /* must be finite (normal or subnormal), or NaN */
+       return (0);
+}
+#endif
+
+#if !defined(HAVE_ISNAN)
+static double
+store(double *x)
+{
+    return (*x);
+}
+
+/**/
+int
+isnan(double x)
+{
+    /* (x != x) should be sufficient, but some compilers incorrectly optimize it away */
+    return (store(&x) != store(&x));
+}
+#endif
+
 /**/
 static int
 zzlex(void)
@@ -785,11 +815,10 @@ zzlex(void)
 		ptr++;
 		break;
 	    }
-	case ' ':
+	case ' ': /* Fall through! */
 	case '\t':
 	case '\n':
 	    break;
-	/* Fall through! */
 	default:
 	    if (idigit(*--ptr) || *ptr == '.')
 		return lexconstant();
@@ -814,6 +843,20 @@ zzlex(void)
 
 		p = ptr;
 		ptr = ie;
+		if (ie - p == 3) {
+		    if (strncasecmp(p, "NaN", 3) == 0) {
+			yyval.type = MN_FLOAT;
+			yyval.u.d = 0.0;
+			yyval.u.d /= yyval.u.d;
+			return NUM;
+		    }
+		    else if (strncasecmp(p, "Inf", 3) == 0) {
+			yyval.type = MN_FLOAT;
+			yyval.u.d = 0.0;
+			yyval.u.d = 1.0 / yyval.u.d;
+			return NUM;
+		    }
+		}
 		if (*ptr == '[' || (!cct && *ptr == '(')) {
 		    char op = *ptr, cp = ((*ptr == '[') ? ']' : ')');
 		    int l;
@@ -1068,9 +1111,9 @@ callmathfunc(char *o)
 static int
 notzero(mnumber a)
 {
-    if ((a.type & MN_INTEGER) ? a.u.l == 0 : a.u.d == 0.0) {
-	zerr("division by zero");
-	return 0;
+    if ((a.type & MN_INTEGER) && a.u.l == 0) {
+        zerr("division by zero");
+        return 0;
     }
     return 1;
 }
