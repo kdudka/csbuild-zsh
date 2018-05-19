@@ -1,3 +1,11 @@
+2018-05-19  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 42806: Completion/Unix/Command/_shutdown: fix where options
+	were lost due to args= assignment where args+= was needed
+
+	* 42803: Completion/Unix/Command/_netstat: handle Linux and
+	the the BSDs in netstat completion
+
 2018-05-17  Oliver Kiddle  <okiddle@yahoo.co.uk>
 
 	* Stephane: 42790: Doc/Zsh/expn.yo, NEWS, Src/pattern.c,
