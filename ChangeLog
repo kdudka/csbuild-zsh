@@ -1,3 +1,18 @@
+2018-06-03  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 42826: Eitan Adler: Misc/bash2zshprompt: remove link to
+	now-spam website
+
+	* 42919: dana: Completion/Unix/Command/_uptime,
+	Completion/Unix/Command/_shuf: new shuf and uptime completions
+
+	* 42922: dana: Completion/Unix/Command/_tac: new tac completion
+
+	* 42881: Completion/Unix/Command/_ghostscript: update options in
+	ghostscript completion and query more matches directly from it
+
+	* 42920: Completion/Linux/Command/_dkms: new dkms completion
+
 2018-06-01  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 42888: MACHINES: remove outdated issues and update general
