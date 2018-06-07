@@ -1,3 +1,22 @@
+2018-06-07  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 42931: dana: Completion/Unix/Command/_base64,
+	Completion/Unix/Command/_chroot, Completion/Unix/Command/_cksum,
+	Completion/Unix/Command/_lz4, Completion/Unix/Command/_md5sum,
+	Completion/Unix/Command/_tee, Completion/Unix/Command/_shasum,
+	Completion/Unix/Command/_readlink: completion for several
+	utilities especially for checksums across a variety of systems
+
+	* users/23434: Functions/Misc/zed: initialise UNDO_LIMIT_NO so
+	that an initial undo doesn't clear the whole edit buffer
+
+	* 42935: Eitan Adler: Completion/Unix/Command/_arp:
+	FreeBSD does not support -v for arp
+
+	* 42937: Eitan Adler: Completion/BSD/Command/_powerd: add -M/-m
+
+	* 43943: Completion/Unix/Command/_samba: update with long options
+
 2018-06-06  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* Eitan: 42938: Src/Modules/mathfunc.c: name argument to
