@@ -1,3 +1,19 @@
+2018-06-16  dana  <dana@dana.is>
+
+	* 43030: Functions/VCS_Info/Backends/VCS_INFO_get_data_bzr,
+	Functions/VCS_Info/Backends/VCS_INFO_get_data_cvs,
+	Functions/VCS_Info/Backends/VCS_INFO_get_data_svn,
+	Functions/VCS_Info/Backends/VCS_INFO_get_data_tla,
+	Functions/VCS_Info/VCS_INFO_bydir_detect,
+	Functions/VCS_Info/VCS_INFO_realpath,
+	Functions/VCS_Info/vcs_info: Replace VCS_INFO_realpath() by :P
+
+	* 43031: Etc/completion-style-guide: Add note about quoting/escaping
+	(cf. 42992)
+
+	* 43031: Etc/completion-style-guide: Add note about optional/variant
+	syntax (cf. 43025)
+
 2018-06-15  dana  <dana@dana.is>
 
 	* 43024: Completion/Unix/Command/_man: Improve section-name matching
@@ -21,20 +37,21 @@
 
 	* 42992: Completion/Darwin/Command/_nvram,
 	Completion/Darwin/Command/_osascript, Completion/Darwin/Command/_say,
-	Completion/Darwin/Command/_scselect: Use _call_program to fetch argument
-	possibilities
+	Completion/Darwin/Command/_scselect: Use _call_program to fetch
+	argument possibilities
 
 2018-06-12  dana  <dana@dana.is>
 
-	* unposted: Completion/Darwin/Type/_mac_applications: Change 'Mac OS X' to
-	'macOS'
+	* unposted: Completion/Darwin/Type/_mac_applications: Change
+	'Mac OS X' to 'macOS'
 
 2018-06-11  dana  <dana@dana.is>
 
 	* 42983: Completion/Unix/Command/_man: Address misc. feedback
 
-	* 42984: Completion/Unix/Type/_files, Completion/Unix/Type/_object_files:
-	Fix argument pass-through to compadd
+	* 42984: Completion/Unix/Type/_files,
+	Completion/Unix/Type/_object_files: Fix argument pass-through to
+	compadd
 
 2018-06-10  Oliver Kiddle  <okiddle@yahoo.co.uk>
 
