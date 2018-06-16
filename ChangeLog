@@ -1,3 +1,7 @@
+2018-06-15  dana  <dana@dana.is>
+
+	* 43024: Completion/Unix/Command/_man: Improve section-name matching
+
 2018-06-15  Matthew Martin  <phy1729@gmail.com>
 
 	* 42981: Completion/Unix/Command/_ed: Add ed completer
@@ -7,7 +11,7 @@
 	* users/23472: 	Doc/Zsh/mod_system.yo, Src/Modules/system.c,
 	Src/exec.c, Src/zsh.h: Add $sysparams[procsubstpid].
 
-	* 43008: Src/otpions.c: combine suggestion from Sebastain to
+	* 43008: Src/options.c: combine suggestion from Sebastian to
 	silence warnings for double setgid/setuid with suggestion
 	from Eitan to put setgid first.
 
