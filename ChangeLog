@@ -1,3 +1,14 @@
+2018-06-18  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 43006: Tim Smith: Completion/Unix/Command/_git: complete
+	modified files after `git stash --`
+
+	* users/23484: Completion/Unix/Command/_git: be consistent on
+	matcher specs for branches to fix issue with partial matching
+
+	* 43048: Eitan: Completion/Unix/Command/_gcc: add sanitizers,
+	standards aliases and fix -flto
+
 2018-06-17  dana  <dana@dana.is>
 
 	* 43043: Completion/Unix/Command/_comm,
