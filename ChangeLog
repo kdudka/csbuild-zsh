@@ -1,3 +1,20 @@
+2018-08-07  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Anton Shestakov: 43254: Completion/Unix/Command/_hg: Remove hg
+	-w and add hg -S.
+
+	* Anton Shestakov: 43252: Completion/Unix/Command/_hg: fix up
+	various hg options for completion.
+
+	* Anton Shestakov: 43250: Completion/Unix/Command/_hg: Add hg
+	forget, phase, summary completions.
+
+	* Anton Shestakov: 43251: Completion/Unix/Command/_hg: fix
+	return value of some hg completion functions.
+
+	* Anton Shestakov: 43253: Completion/Unix/Command/_hg: hg
+	--style is deprecated, use --template.
+
 2018-08-01  Jun-ichi Takimoto <takimoto-j@kba.biglobe.ne.jp>
 
 	* 43227: Src/Modules/termcap.c, Src/Modules/terminfo.c,
