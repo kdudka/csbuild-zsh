@@ -1,3 +1,19 @@
+2018-08-28  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 43345: Completion/Unix/Command/_mount,
+	Completion/Unix/Type/_umountable: don't modify global variable
+
+	* unposted: Completion/Linux/Command/_dkms: correct
+	completion argument order
+
+	* unposted: Completion/Unix/Command/_strings: completion for
+	argument to -s was missing
+
+	* unposted: Completion/Unix/Command/_tar: complete also for bsdtar
+
+	* unposted: Completion/Solaris/Command/_svccfg: fix typo in
+	function call
+
 2018-08-25  Daniel Shahaf  <d.s@daniel.shahaf.name>
 
 	* unposted: Etc/FAQ.yo: Fix FAQ build, broken by 43184.
