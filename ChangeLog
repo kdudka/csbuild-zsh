@@ -1,3 +1,23 @@
+2018-11-08  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 43779 (tweaked): Joey Pabalinas: Functions/Zle/select-bracketed: 
+	add parentheses to fix expression with cprecedences option set
+
+	* 43805: Src/Modules/nearcolor.c, Src/prompt.c: make nearcolor
+	module use the default colour rather than black as a fallback
+
+	* 43804: Src/prompt.c: also need to be able to turn colour
+	attributes back into hex triples for region_highlight variable
+
+	* unposted: Src/Modules/nearcolor.c: add usual copyright header
+
+	* 43784: Completion/Zsh/Command/_compadd: clarify descriptions on
+	options related to match sorting
+
+	* unposted (c.f. Bart: 43739):
+	Completion/Zsh/Context/_brace_parameter: use a correct
+	description for the @ parameter expansion flag
+
 2018-11-07  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 43788: Doc/Zsh/mod_zpty.yo: make it clear -n option to

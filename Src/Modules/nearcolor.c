@@ -1,3 +1,32 @@
+/*
+ * nearcolor.c - map colours to nearest match in 88 or 256 colour palette
+ *
+ * This file is part of zsh, the Z shell.
+ *
+ * Copyright (c) 2018 Oliver Kiddle
+ * All rights reserved.
+ *
+ * Permission is hereby granted, without written agreement and without
+ * license or royalty fees, to use, copy, modify, and distribute this
+ * software and to distribute modified versions of this software for any
+ * purpose, provided that the above copyright notice and the following
+ * two paragraphs appear in all copies of this software.
+ *
+ * In no event shall Oliver Kiddle or the Zsh Development Group be liable
+ * to any party for direct, indirect, special, incidental, or consequential
+ * damages arising out of the use of this software and its documentation,
+ * even if Oliver Kiddle and the Zsh Development Group have been advised of
+ * the possibility of such damage.
+ *
+ * Oliver Kiddle and the Zsh Development Group specifically disclaim any
+ * warranties, including, but not limited to, the implied warranties of
+ * merchantability and fitness for a particular purpose.  The software
+ * provided hereunder is on an "as is" basis, and Oliver Kiddle and the
+ * Zsh Development Group have no obligation to provide maintenance,
+ * support, updates, enhancements, or modifications.
+ *
+ */
+
 #include "nearcolor.mdh"
 #include "nearcolor.pro"
 
@@ -117,13 +146,14 @@ mapRGBto256(int red, int green, int blue)
 static int
 getnearestcolor(UNUSED(Hookdef dummy), Color_rgb col)
 {
+    /* we add 1 to the colours so that colour 0 (black) is
+     * distinguished from runhookdef() indicating that no
+     * hook function is registered */
     if (tccolours == 256)
 	return mapRGBto256(col->red, col->green, col->blue) + 1;
     if (tccolours == 88)
 	return mapRGBto88(col->red, col->green, col->blue) + 1;
-    /* returning 1 indicates black rather than failure (0) so this
-     * module still serves to prevent fallback on true color */
-    return 1;
+    return -1;
 }
 
 static struct features module_features = {
