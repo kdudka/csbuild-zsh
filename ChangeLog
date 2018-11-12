@@ -1,3 +1,31 @@
+2018-11-12  Oliver Kiddle  <okiddle@yahoo.co.uk>
+
+	* 43819: Completion/Unix/Command/_adb: expand adb completion to
+	also cover options to adb backup
+
+	* 43818: Completion/Zsh/Type/_module_math_func: complete math
+	functions for other modules besides zsh/mathfunc
+
+	* 43816: Completion/Linux/Command/_valgrind,
+	Completion/BSD/Command/_vmctl, Completion/Linux/Command/_ethtool,
+	Completion/Linux/Command/_losetup, Completion/Linux/Command/_lsblk,
+	Completion/Unix/Command/_ansible, Completion/Unix/Command/_column,
+	Completion/Unix/Command/_dhclient, Completion/Unix/Command/_links,
+	Completion/Unix/Command/_dmidecode, Completion/Unix/Command/_jq,
+	Completion/Unix/Command/_luarocks, Completion/Unix/Command/_mpc,
+	Completion/Unix/Command/_samba, Completion/Unix/Command/_script,
+	Completion/Unix/Command/_ssh, Completion/Unix/Command/_tmux:
+	various completion option updates
+
+	* 43817: Completion/Linux/Command/_btrfs: update options in
+	completion through to btrfs 4.17.1
+
+	* 43813: Completion/BSD/Command/_powerd: add units, default
+	values and allow option arguments in the same word as the option
+
+	* 43812: Completion/Unix/Command/_gcc: allow repeats of
+	the -Wsuggest-attribute option
+
 2018-11-09  Peter Stephenson  <p.stephenson@samsung.com>
 
 	* 43790: Kamil: Src/utils.c: failed mailstat could leak memory.
