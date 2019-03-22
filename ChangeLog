@@ -1,3 +1,11 @@
+2019-03-22  dana  <dana@dana.is>
+
+	* unposted: Completion/Unix/Command/_chmod: Use _guard for mode
+	operand
+
+	* Clinton Bunch: 44156 (tweaked): Doc/Zsh/mod_system.yo: Add
+	note about potential flock side-effects
+
 2019-03-22  Jun-ichi Takimoto  <takimoto-j@kba.biglobe.ne.jp>
 
 	* 44147: Completion/Linux/Command/_free,
