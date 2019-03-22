@@ -5,6 +5,20 @@
 	Completion/Linux/Command/_tload, Completion/Unix/Command/_top,
 	Completion/Unix/Type/_pids: add/update completions for procps-ng.
 
+2019-03-21  Matthew Martin  <phy1729@gmail.com>
+
+	* 44153: Doc/Zsh/mod_files.yo, Src/Modules/files.c: rm: Accept
+	-R as equivalent to -r.
+
+	* 44149: Completion/Unix/Command/_mkdir,
+	Completion/Unix/Command/_stat: Use _pick_variant -b.
+
+	* 44144: Completion/Zsh/Command/_builtin: Append "builtin" to
+	precommands.
+
+	* 44155: Completion/Base/Utility/_pick_variant: Update builtin
+	check.
+
 2019-03-21  dana  <dana@dana.is>
 
 	* 44111: Completion/Unix/Command/_git: Use `git rev-list` for log
