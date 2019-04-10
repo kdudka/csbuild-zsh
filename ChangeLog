@@ -1,3 +1,22 @@
+2019-04-10  Peter Stephenson  <p.stephenson@samsung.com>
+
+	* Eric Freese: 44214: Src/exec.c: <(...) substitutions shouldn't
+	grab the terminal.
+
+	* Roman Perepelitsa: 44215: Doc/Zsh/zle.yo,
+	Src/Zle/iwidgets.list, Src/Zle/zle.h, Src/Zle/zle_main.c,
+	Src/Zle/zle_thingy.c, Src/Zle/zle_utils.c, Src/Zle/zle_vi.c:
+	Maintain LASTWIDGET across reset-prompt, avoiding side effects
+	of asynchronous notifications.
+
+	* 44202: Src/Zle/compctl.c: Rewrite to use memmove()
+	for possibly overlapping copy.
+
+2019-04-10  Jun-ichi Takimoto  <takimoto-j@kba.biglobe.ne.jp>
+
+	* 44210: Completion/Linux/Command/_findmnt,
+	Completion/Linux/Command/_lsblk: Add _findmnt and update _lsblk.
+
 2019-04-04  Matthew Martin  <phy1729@gmail.com>
 
 	* 44202 (tweaked): Completion/Base/Core/_normal,
