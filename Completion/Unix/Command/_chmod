@@ -1,7 +1,7 @@
 #compdef chmod gchmod zf_chmod
 
 local curcontext="$curcontext" state line expl ret=1 variant
-local -a args privs
+local -a args privs aopts=( -A '-*' )
 
 args=( '*: :->files' '1: :_file_modes' )
 
@@ -17,6 +17,7 @@ case "$variant" in
     )
     ;;
   gnu)
+    aopts=()
     args+=(
       '(-v --verbose -c --changes)'{-c,--changes}'[report changes made]'
       '(-v --verbose -c --changes)'{-v,--verbose}'[output a diagnostic for every file processed]'
@@ -42,7 +43,7 @@ case "$variant" in
     ;|
   freebsd*|netbsd*|darwin*|dragonfly*)
     args+=(
-      '-h[operate on symlinks them self]'
+      '-h[operate on symlinks themselves]'
     )
     ;|
   freebsd*|openbsd*|netbsd*|darwin*|dragonfly*)
@@ -54,16 +55,16 @@ case "$variant" in
     ;|
   darwin*)
     args+=(
-      '(1)-C[returns false if any of the named files have ACLs]'
+      '(1)-C[return false if any specified files have ACLs]'
       '(1)-N[remove ACLs from specified files]'
-      '(1)-E[read ACL info from stdin as a sequential list of ACEs]'
-      '(1)-i[removes inherited bit from all entries in named files ACLs]'
-      '(1)-I[removes all inherited entries from named files ACLs]'
+      '(1)-E[read ACL info from stdin as sequential list of ACEs]'
+      "(1)-i[remove inherited bit from all entries in specified files' ACLs]"
+      "(1)-I[remove all inherited entries from specified files' ACLs]"
     )
     ;;
 esac
 
-_arguments -C -s "$args[@]" && ret=0
+_arguments -C -s -S $aopts "$args[@]" && ret=0
 
 case "$state" in
   files)

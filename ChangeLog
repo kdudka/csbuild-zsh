@@ -1,3 +1,23 @@
+2019-04-26  dana  <dana@dana.is>
+
+	* 44234: Completion/Unix/Command/_ssh: Update for OpenSSH 8.0
+
+	* 44249: Completion/Unix/Command/_mv,
+	Completion/Unix/Command/_rmdir,
+	Completion/Unix/Type/_directories: Handle zsh/files built-ins
+	in _mv and _rmdir
+
+	* 44250: Completion/Unix/Command/_chmod,
+	Completion/Unix/Command/_chown, Completion/Unix/Command/_ln,
+	Completion/Unix/Command/_mkdir, Completion/Unix/Command/_mv,
+	Completion/Unix/Command/_rm, Completion/Unix/Command/_rmdir:
+	Fix use of -A and -S options to _arguments
+
+	* 44251: Completion/Unix/Command/_chmod,
+	Completion/Unix/Command/_chown, Completion/Unix/Command/_mkdir,
+	Completion/Unix/Command/_mv, Completion/Unix/Command/_rmdir:
+	Fix various wording issues
+
 2019-04-25  Peter Stephenson  <p.w.stephenson@ntlworld.com>
 
 	* 44248: Src/init.c: Mark SIGQUIT as ignored if ignored at
