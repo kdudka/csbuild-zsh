@@ -2582,9 +2582,7 @@ typeset_single(char *cname, char *pname, Param pm, UNUSED(int func),
 	}
     }
     pm->node.flags |= (on & PM_READONLY);
-
-    if (OPT_ISSET(ops,'p'))
-	paramtab->printnode(&pm->node, PRINT_TYPESET);
+    DPUTS(OPT_ISSET(ops,'p'), "BUG: -p not handled");
 
     return pm;
 }
@@ -2714,7 +2712,7 @@ bin_typeset(char *name, char **argv, LinkList assigns, Options ops, int func)
 	(!isset(GLOBALEXPORT) && !OPT_ISSET(ops,'g')))
 	on |= PM_LOCAL;
 
-    if (on & PM_TIED) {
+    if ((on & PM_TIED) && !OPT_ISSET(ops, 'p')) {
 	Param apm;
 	struct asgment asg0, asg2;
 	char *oldval = NULL, *joinstr;
@@ -4993,8 +4991,7 @@ bin_print(char *name, char **args, Options ops, int func)
 	    	narg = strtoul(c, &endptr, 0);
 		if (*endptr == '$') {
 		    c = endptr + 1;
-		    DPUTS(narg <= 0, "specified zero or negative arg");
-		    if (narg > argc) {
+		    if (narg <= 0 || narg > argc) {
 		    	zwarnnam(name, "%d: argument specifier out of range",
 				 narg);
 			if (fout != stdout)
